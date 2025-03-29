@@ -15,7 +15,9 @@ public:
 	string title = "PulsarVenv 0.0.1-alpha";
 	string platform_version = "Windows";
 	string account = "Guest";
-	unsigned int start_time;
+	int start_time = 0;
+	string bildingid;
+
 	void ShowInfo() {
 		unsigned int point_time = clock();
 		cout << "-----------------------------------------" << endl;
@@ -23,15 +25,16 @@ public:
 		cout << "Platform:    " << platform_version << endl;
 		cout << "Working time " << (point_time - start_time)/1000 << " sec" << endl;
 		cout << "Account:     " << account << endl;
+		cout << "Build id:    " << bildingid << endl;
 		cout << "-----------------------------------------" << endl;
 	}
 };
 
-int pulsarstart() {
-	unsigned int start_time = clock();
+int pulsarstart(string bildn) {
 	setlocale(LC_ALL, "Ru");
 	CurrentPulsarInfo session;
-	session.start_time = start_time;
+	session.start_time = clock();
+	session.bildingid = bildn;
 	string com;
 	filesystem::path tfp = filesystem::current_path();
 	string curpath = tfp.string();
@@ -71,13 +74,16 @@ int pulsarstart() {
 			session.ShowInfo();
 		}
 		else if (com.substr(0, 7) == "python") {
-			com.replace(0,7, "");
-			size_t first_non_space = com.find_first_not_of(' ');
-			if (first_non_space != string::npos) {
-				com.erase(0, first_non_space);
+			if (bildn != "0000") { cout << "В данной сборке отсутсвует эта команда..." << endl; }
+			else {
+				com.replace(0, 7, "");
+				size_t first_non_space = com.find_first_not_of(' ');
+				if (first_non_space != string::npos) {
+					com.erase(0, first_non_space);
+				}
+				string pfile = "cd " + curpath + "\\python313puls && ppython.exe " + com;
+				system(pfile.c_str());
 			}
-			string pfile = "cd " + curpath + "\\python313puls && ppython.exe " + com;
-			system(pfile.c_str());
 		}
 		else if (com.substr(0, 9) == "sysconfig") {
 			com.replace(0, 9, "");
@@ -93,7 +99,13 @@ int pulsarstart() {
 			cout << "Тут будет ссылка...." << endl;
 		}
 		else {
-			string checkfile = curpath + "\\modules\\" + com;
+			string checkfile;
+			if (com.contains(".exe")) {
+				checkfile = curpath + "\\modules\\" + com;
+			}
+			else {
+				checkfile = curpath + "\\modules\\" + com + ".exe";
+			}
 			if (filesystem::exists(checkfile) == true) {
 				string cdmodule = "cd " + curpath + "\\modules " + "&& " + com;
 				system(cdmodule.c_str());
