@@ -47,8 +47,9 @@ int main(){
                     this_thread::sleep_for(std::chrono::milliseconds(300));
                     code = pulsarstart(build_number);
             #elif __linux__
-                    cout << "Linux система определена\n"
-                        cout << "Необнаружено версий PulsarVenv для Linux"
+        cout << "Linux система определена\n" << endl;
+            cout << "Необнаружено версий PulsarVenv для Linux" << endl;
+        cin.get();
             #endif
     }
     return 0;
