@@ -20,6 +20,8 @@ string build_ID;
 atomic<bool> timeThreadRunning(true);
 mutex consoleMutex;
 
+void PulsarConsoleClear();
+
 class CurrentPulsarInfo {
 public:
     string title = "PulsarVenv 0.0.1-alpha";
@@ -86,6 +88,17 @@ void puls_sysconfig(string line) {
     string scfile = "cd " + curpath + "\\modules && sysconfig.exe";
     cout << "Определение параметров системы... Пожалуйста подождите...\n" << endl;
     system(scfile.c_str());
+
+}
+
+void sumulator_pulsar() {
+    string pathToSumPuls = "cd " + curpath + "\\modules && pulsarem.exe";
+    cout << "Внимание скоро начнется эмуляция пульсара.\nВо время эмуляции не нажимайте по консольному окну.\n"
+        << "Если нажали нажмите enter чтобы продолжить эмуляцию" << endl;
+    this_thread::sleep_for(std::chrono::milliseconds(1000));
+    system("cls");
+    system(pathToSumPuls.c_str());
+    PulsarConsoleClear();
 }
 
 void show_help() {
@@ -97,8 +110,17 @@ void show_help() {
     cout << "  clear             - Очистить экран" << endl;
     cout << "  help              - Показать эту справку" << endl;
     cout << "  exit              - Выйти из PulsarVenv" << endl;
+    cout << "  sumulator_pulsar  - Запустить эмуляцию жизни пульсара" << endl;
     cout << "  <имя_программы>   - Запуск программы из папки modules\n" << endl;
 }
+
+void PulsarConsoleClear() {
+    CurrentPulsarInfo clearinf;
+    system("cls");
+    cout << clearinf.title << endl;
+}
+
+
 
 int pulsarstart(string bildn) {
     setlocale(LC_ALL, "Ru");
@@ -135,8 +157,7 @@ int pulsarstart(string bildn) {
             }
         }
         else if (com == "clear") {
-            system("cls");
-            cout << session.title << endl;
+            PulsarConsoleClear();
         }
         else if (com == "pinfo") {
             session.ShowInfo();
@@ -154,6 +175,9 @@ int pulsarstart(string bildn) {
         }
         else if (com == "help" || com.substr(0, 4) == "help") {
             show_help();
+        }
+        else if (com == "sumulator_pulsar") {
+            sumulator_pulsar();
         }
         else {
             string checkfile;
