@@ -11,7 +11,7 @@
 #include <mutex>
 #include <windows.h>
 using namespace std;
-string curpath;
+string current_path;
 string build_ID;
 
 /*Коды возвращаемых ошибок
@@ -60,7 +60,7 @@ void puls_calc(string line) {
     if (first_non_space != string::npos) {
         line.erase(0, first_non_space);
     }
-    string comforsys = "cd " + curpath + "\\modules && pulsarcalc.exe " + line;
+    string comforsys = "cd " + current_path + "\\modules && pulsarcalc.exe " + line;
     system(comforsys.c_str());
 }
 
@@ -74,7 +74,7 @@ void puls_python(string line) {
         if (first_non_space != string::npos) {
             line.erase(0, first_non_space);
         }
-        string pfile = "cd " + curpath + "\\python313puls && ppython.exe " + line;
+        string pfile = "cd " + current_path + "\\python313puls && ppython.exe " + line;
         system(pfile.c_str());
     }
 }
@@ -85,14 +85,14 @@ void puls_sysconfig(string line) {
     if (first_non_space != string::npos) {
         line.erase(0, first_non_space);
     }
-    string scfile = "cd " + curpath + "\\modules && sysconfig.exe";
+    string scfile = "cd " + current_path + "\\modules && sysconfig.exe";
     cout << "Определение параметров системы... Пожалуйста подождите...\n" << endl;
     system(scfile.c_str());
 
 }
 
 void sumulator_pulsar() {
-    string pathToSumPuls = "cd " + curpath + "\\modules && pulsarem.exe";
+    string pathToSumPuls = "cd " + current_path + "\\modules && pulsarem.exe";
     cout << "Внимание скоро начнется эмуляция пульсара.\nВо время эмуляции не нажимайте по консольному окну.\n"
         << "Если нажали нажмите enter чтобы продолжить эмуляцию" << endl;
     this_thread::sleep_for(std::chrono::milliseconds(1000));
@@ -122,7 +122,7 @@ void PulsarConsoleClear() {
 
 
 
-int pulsarstart(string bildn) {
+int pulsarstart(string bildn, string AccountName) {
     setlocale(LC_ALL, "Ru");
     CurrentPulsarInfo session;
     session.start_time = clock();
@@ -130,7 +130,7 @@ int pulsarstart(string bildn) {
     build_ID = bildn;
     string com;
     filesystem::path tfp = filesystem::current_path();
-    curpath = tfp.string();
+    current_path = tfp.string();
     system("cls");
     cout << session.title << endl;
 
@@ -182,14 +182,14 @@ int pulsarstart(string bildn) {
         else {
             string checkfile;
             if (com.find(".exe") != string::npos) {
-                checkfile = curpath + "\\modules\\" + com;
+                checkfile = current_path + "\\modules\\" + com;
             }
             else {
-                checkfile = curpath + "\\modules\\" + com + ".exe";
+                checkfile = current_path + "\\modules\\" + com + ".exe";
             }
 
             if (filesystem::exists(checkfile)) {
-                string cdmodule = "cd " + curpath + "\\modules && " + com;
+                string cdmodule = "cd " + current_path + "\\modules && " + com;
                 system(cdmodule.c_str());
             }
             else {

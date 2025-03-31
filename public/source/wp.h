@@ -1,4 +1,4 @@
 #pragma once
 #include <string>
 
-int pulsarstart(std::string bildn);
+int pulsarstart(std::string bildn, std::string accountName);

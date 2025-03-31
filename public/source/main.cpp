@@ -6,16 +6,15 @@
 #include <thread>
 #include <fstream>
 #include <Windows.h>;
+#include <filesystem>
+#include <cstdlib>
 
 using namespace std;
+string name;
+string password;
+string curpath;
 
-
-
-int main(){
-    
-    fstream curfile;
-    int code = -1;
-    setlocale(LC_ALL, "Ru");
+void PulsarLogo() {
     cout << "______                                ________     _________      ______ " << endl;
     cout << "|     |    |      /|     |           |            |        |      |     |" << endl;
     cout << "|_____|    |    /  |     |           |_________   |________|      |_____|      " << endl;
@@ -23,11 +22,72 @@ int main(){
     cout << "|          |/      |     |________    ________|   |        |      |    \\" << endl;
     cout << endl;
     cout << endl;
+}
+
+void CreateAccount() {
+        cout << "Введите имя аккаунта: ";
+        getline(cin, name);
+        while (true){
+            cout << "Введите пароль аккаунта: ";
+            getline(cin, password);
+            if (password.length() < 4) {
+                cout << "\nПароль должен содержать минимум 4 символа";
+                continue;
+            }
+            break;
+        }
+        string codingPassw;
+        string newDirecrotyAccount = curpath + "\\accounts\\" + name;
+        filesystem::create_directory(newDirecrotyAccount);
+        filesystem::create_directory(newDirecrotyAccount + "\\accountcfg");
+        filesystem::create_directory(newDirecrotyAccount + "\\userfiles");
+        ofstream f;
+        f.open(newDirecrotyAccount + "\\accountcfg\\password.ppas");
+        f << password;
+        f.close();
+        cout << "Успешно создан аккаунт\nИмя - " << name << "     Пароль - " << password << endl;
+        this_thread::sleep_for(std::chrono::milliseconds(1100));
+        system("cls");
+}
+
+void LoginInAccount() {
+    while (true) {
+        cout << "Введите имя аккаунта: ";
+        getline(cin, name);
+        cout << "Введите пароль аккаунта: ";
+        getline(cin, password);
+        fstream f;
+        f.open(curpath + "\\accounts\\" + name + "\\accountcfg\\password.ppas", fstream::in | fstream::out | fstream::app);
+        string correctPassword;
+        getline(f, correctPassword);
+        f.close();
+        if (correctPassword == password) {
+            cout << "Успешная авторизация" << endl;
+            break;
+        }
+        else {
+            cout << "Неверный пароль. Попробуйте еще раз!\n";
+            continue;
+        }
+
+    }
+}
+
+
+
+int main(){
+    fstream curfile;
+    filesystem::path currentPathtoFile = filesystem::current_path();
+    curpath = currentPathtoFile.string();
+    int code = -1;
+    setlocale(LC_ALL, "Ru");
+    PulsarLogo();
     cout << "PulsarVenv инициализирован\n";
     this_thread::sleep_for(std::chrono::milliseconds(300));
     cout << "Загрузка...\n";
     this_thread::sleep_for(std::chrono::milliseconds(300));
-    curfile.open("maincfg.pcfg", fstream::in | fstream::out | fstream::app);
+    string pathToMainCfg = curpath + "\\SystemPuls\\systemcfg\\maincfg.pcfg";
+    curfile.open(pathToMainCfg, fstream::in | fstream::out | fstream::app);
     string buildid;
     if (!curfile.is_open()) { 
         cout << "Ошибка при работе с файлом maincfg.pcfg" << endl; 
@@ -39,9 +99,7 @@ int main(){
         if (getline(curfile, line)) {
             size_t pos = line.find("build id: ");
             if (pos != string::npos) {
-                // Извлекаем только номер
                 build_number = line.substr(pos + 9);
-                // Удаляем возможные пробелы в начале и конце
                 build_number.erase(0, build_number.find_first_not_of(" \t"));
                 build_number.erase(build_number.find_last_not_of(" \t") + 1);
             }
@@ -49,7 +107,28 @@ int main(){
             #ifdef _WIN32
                     cout << "Windows система определена\n";
                     this_thread::sleep_for(std::chrono::milliseconds(300));
-                    code = pulsarstart(build_number);
+                    system("cls");
+                    PulsarLogo();
+                    string allaccounts[100];
+                    int countAccount = 0;
+                    string accountDirectoryPath = curpath + "\\accounts";
+                    for (const auto& entry : filesystem::directory_iterator(accountDirectoryPath)) {
+                        if (entry.is_directory()) {
+                            if (countAccount > 100) break;
+                            string currentAccount = entry.path().filename().string();
+                            allaccounts[countAccount] = currentAccount;
+                            countAccount++;
+                        }
+                    }
+                    if (countAccount == 0) {
+                        cout << "У вас нет аккаунтов. Для продолжения необходимо создать аккаунт" << endl;
+                        CreateAccount();
+                    }
+                    else {
+                        LoginInAccount();
+                    }
+                    code = pulsarstart(build_number, name);
+                    
             #elif __linux__
         cout << "Linux система определена\n" << endl;
             cout << "Необнаружено версий PulsarVenv для Linux" << endl;
