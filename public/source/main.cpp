@@ -109,14 +109,11 @@ int main(){
                     this_thread::sleep_for(std::chrono::milliseconds(300));
                     system("cls");
                     PulsarLogo();
-                    string allaccounts[100];
                     int countAccount = 0;
                     string accountDirectoryPath = curpath + "\\accounts";
                     for (const auto& entry : filesystem::directory_iterator(accountDirectoryPath)) {
                         if (entry.is_directory()) {
-                            if (countAccount > 100) break;
                             string currentAccount = entry.path().filename().string();
-                            allaccounts[countAccount] = currentAccount;
                             countAccount++;
                         }
                     }

@@ -120,6 +120,11 @@ void PulsarConsoleClear() {
     cout << clearinf.title << endl;
 }
 
+void AccountCommand(string line) {
+    line.replace(0, 8, "");
+
+}
+
 
 
 int pulsarstart(string bildn, string AccountName) {
@@ -127,6 +132,8 @@ int pulsarstart(string bildn, string AccountName) {
     CurrentPulsarInfo session;
     session.start_time = clock();
     session.bildingid = bildn;
+    session.account = AccountName;
+    SetConsoleTitle(L"PulsarVenv");
     build_ID = bildn;
     string com;
     filesystem::path tfp = filesystem::current_path();
@@ -137,8 +144,6 @@ int pulsarstart(string bildn, string AccountName) {
     while (true) {
         cout << "$> ";
         getline(cin, com);
-
-        // Удаление лишних пробелов
         com.erase(0, com.find_first_not_of(' '));
         com.erase(com.find_last_not_of(' ') + 1);
 
@@ -178,6 +183,10 @@ int pulsarstart(string bildn, string AccountName) {
         }
         else if (com == "sumulator_pulsar") {
             sumulator_pulsar();
+        }
+        else if (com.substr(0, 8) == "account") {
+            return 1;
+            //AccountCommand(com);
         }
         else {
             string checkfile;
