@@ -27,6 +27,7 @@ void PulsarLogo() {
 void CreateAccount() {
         cout << "Введите имя аккаунта: ";
         getline(cin, name);
+        cout << "СПРАВКА - если хотите создать аккаунт без пароля укажите \"none\"" << endl;
         while (true){
             cout << "Введите пароль аккаунта: ";
             getline(cin, password);
@@ -36,7 +37,6 @@ void CreateAccount() {
             }
             break;
         }
-        string codingPassw;
         string newDirecrotyAccount = curpath + "\\accounts\\" + name;
         filesystem::create_directory(newDirecrotyAccount);
         filesystem::create_directory(newDirecrotyAccount + "\\accountcfg");
@@ -54,13 +54,17 @@ void LoginInAccount() {
     while (true) {
         cout << "Введите имя аккаунта: ";
         getline(cin, name);
-        cout << "Введите пароль аккаунта: ";
-        getline(cin, password);
         fstream f;
         f.open(curpath + "\\accounts\\" + name + "\\accountcfg\\password.ppas", fstream::in | fstream::out | fstream::app);
         string correctPassword;
         getline(f, correctPassword);
         f.close();
+        if (correctPassword == "none") {
+            cout << "Успешная авторизация" << endl;
+            break;
+        }
+        cout << "Введите пароль аккаунта: ";
+        getline(cin, password);
         if (correctPassword == password) {
             cout << "Успешная авторизация" << endl;
             break;
