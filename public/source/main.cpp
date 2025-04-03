@@ -50,7 +50,7 @@ void CreateAccount() {
         system("cls");
 }
 
-void LoginInAccount() {
+int LoginInAccount() {
     while (true) {
         cout << "Введите имя аккаунта: ";
         getline(cin, name);
@@ -58,6 +58,10 @@ void LoginInAccount() {
         f.open(curpath + "\\accounts\\" + name + "\\accountcfg\\password.ppas", fstream::in | fstream::out | fstream::app);
         string correctPassword;
         getline(f, correctPassword);
+        if (!f.is_open()) {
+            cout << "Такого аккаунта не существует или произшла ошибка" << endl;
+            return 1;
+        }
         f.close();
         if (correctPassword == "none") {
             cout << "Успешная авторизация" << endl;
@@ -75,6 +79,7 @@ void LoginInAccount() {
         }
 
     }
+    return 0;
 }
 
 
@@ -126,7 +131,11 @@ int main(){
                         CreateAccount();
                     }
                     else {
-                        LoginInAccount();
+                       int check = LoginInAccount();
+                       if (check == 1) {
+                           return 1;
+                       }
+                        
                     }
                     code = pulsarstart(build_number, name);
                     

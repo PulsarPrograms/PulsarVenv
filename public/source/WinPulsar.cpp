@@ -22,16 +22,17 @@ atomic<bool> timeThreadRunning(true);
 mutex consoleMutex;
 
 void PulsarConsoleClear();
+int configAnalyze(string bildn, string AccountName);
 
 class CurrentPulsarInfo {
 public:
-    string title = "PulsarVenv 0.0.1-alpha";
-    string platform_version = "Windows";
-    string account = "Guest";
-    int start_time = 0;
-    string bildingid;
+    static string title;
+    static string platform_version;
+    static string account;
+    static int start_time;
+    static string bildingid;
 
-    string getCurrentDateTime() {
+    static string getCurrentDateTime() {
         auto now = chrono::system_clock::now();
         time_t now_time = chrono::system_clock::to_time_t(now);
         tm local_time;
@@ -42,7 +43,7 @@ public:
         return datetime_stream.str();
     }
 
-    void ShowInfo() {
+    static void ShowInfo() {
         unsigned int point_time = clock();
         cout << "----------------------------------------------" << endl;
         cout << "Версия:         " << title << endl;
@@ -54,6 +55,11 @@ public:
         cout << "----------------------------------------------" << endl;
     }
 };
+string CurrentPulsarInfo::title = "PulsarVenv 0.0.1-alpha";
+string CurrentPulsarInfo::platform_version = "Windows";
+string CurrentPulsarInfo::account = "";
+int CurrentPulsarInfo::start_time = 0;
+string CurrentPulsarInfo::bildingid = "";
 
 void puls_calc(string line) {
     line.replace(0, 4, "");
@@ -103,7 +109,7 @@ void sumulator_pulsar() {
 }
 
 void show_help() {
-    cout << "\nДоступные команды:" << endl;
+    /*cout << "\nДоступные команды:" << endl;
     cout << "  calc <выражение>  - Калькулятор (например: calc 2+2)" << endl;
     cout << "  python <скрипт>   - Запуск Python скрипта (только для сборки 0000)" << endl;
     cout << "  sysconfig         - Показать конфигурацию системы" << endl;
@@ -112,7 +118,9 @@ void show_help() {
     cout << "  help              - Показать эту справку" << endl;
     cout << "  exit              - Выйти из PulsarVenv" << endl;
     cout << "  sumulator_pulsar  - Запустить эмуляцию жизни пульсара" << endl;
-    cout << "  <имя_программы>   - Запуск программы из папки modules\n" << endl;
+    cout << "  <имя_программы>   - Запуск программы из папки modules\n" << endl;*/
+    string PathToOpen = "cd " + current_path + "\\public\\documentation && notepad PulsarCommandHelp.txt";
+    system(PathToOpen.c_str());
 }
 
 void PulsarConsoleClear() {
@@ -176,25 +184,53 @@ void AccountCommand(string line) {
             cout << "Такого аккаунта не существует" << endl;
         }
     }
+    else if (line.starts_with("swap")) {
+        cout << "Введите имя аккаунта: ";
+        getline(cin, name);
+        string pathToAccount = current_path + "\\accounts\\" + name;
+        cout << "Введите пароль аккаунта: ";
+        getline(cin, password);
+        if (filesystem::exists(pathToAccount)) {
+            fstream f;
+            f.open(current_path + "\\accounts\\" + name + "\\accountcfg\\password.ppas", fstream::in | fstream::out | fstream::app);
+            string correctPassword;
+            getline(f, correctPassword);
+            f.close();
+            if (password == correctPassword) {
+                configAnalyze(build_ID, name);
+                PulsarConsoleClear();
+            }
+            else {
+                cout << "Неверный пароль" << endl;
+            }
+
+        }
+        else {
+            cout << "Такого аккаунта не существует" << endl;
+        }
+    }
 
 
 }
 
+int configAnalyze(string bildn, string AccountName) {
+    CurrentPulsarInfo::start_time = clock();
+    CurrentPulsarInfo::bildingid = bildn;
+    CurrentPulsarInfo::account = AccountName;
 
-
-int pulsarstart(string bildn, string AccountName) {
-    setlocale(LC_ALL, "Ru");
-    CurrentPulsarInfo session;
-    session.start_time = clock();
-    session.bildingid = bildn;
-    session.account = AccountName;
-    SetConsoleTitle(L"PulsarVenv");
+    string setConsoleTitlePuls = "title PulsarVenv " + AccountName;
+    system(setConsoleTitlePuls.c_str());
     build_ID = bildn;
-    string com;
     filesystem::path tfp = filesystem::current_path();
     current_path = tfp.string();
+    return 0;
+}
+int pulsarstart(string bildn, string AccountName) {
+    setlocale(LC_ALL, "Ru");
+    configAnalyze(bildn, AccountName);
+    string com;
     system("cls");
-    cout << session.title << endl;
+    cout << CurrentPulsarInfo::title << endl; 
 
     while (true) {
         cout << "$> ";
@@ -220,7 +256,7 @@ int pulsarstart(string bildn, string AccountName) {
             PulsarConsoleClear();
         }
         else if (com == "pinfo") {
-            session.ShowInfo();
+            CurrentPulsarInfo::ShowInfo();
         }
         else if (com.substr(0, 7) == "python") {
             if (com.length() > 7) {
@@ -240,7 +276,6 @@ int pulsarstart(string bildn, string AccountName) {
             sumulator_pulsar();
         }
         else if (com.substr(0, 7) == "account") {
-            cout << com << endl;
             AccountCommand(com);
         }
         else {
