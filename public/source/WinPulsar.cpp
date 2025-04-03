@@ -1,21 +1,22 @@
-#include <iostream>
-#include <string>
-#include "wp.h"
-#include <cstdlib>
-#include <filesystem>
-#include <ctime>
-#include <chrono>
-#include <iomanip>
-#include <thread>
+п»ї#include "wp.h"
 #include <atomic>
+#include <chrono>
+#include <cstdlib>
+#include <ctime>
+#include <filesystem>
+#include <iomanip>
+#include <iostream>
 #include <mutex>
+#include <string>
+#include <thread>
 #include <windows.h>
+#include <fstream>
 using namespace std;
 string current_path;
 string build_ID;
 
-/*Коды возвращаемых ошибок
-0001 - код выхода из системы*/
+/*РљРѕРґС‹ РІРѕР·РІСЂР°С‰Р°РµРјС‹С… РѕС€РёР±РѕРє
+0001 - РєРѕРґ РІС‹С…РѕРґР° РёР· СЃРёСЃС‚РµРјС‹*/
 
 atomic<bool> timeThreadRunning(true);
 mutex consoleMutex;
@@ -44,12 +45,12 @@ public:
     void ShowInfo() {
         unsigned int point_time = clock();
         cout << "----------------------------------------------" << endl;
-        cout << "Версия:         " << title << endl;
-        cout << "Платформа:      " << platform_version << endl;
-        cout << "Время работы:   " << (point_time - start_time) / 1000 << " сек" << endl;
-        cout << "Текущее время:  " << getCurrentDateTime() << endl;
-        cout << "Аккаунт:        " << account << endl;
-        cout << "ID сборки:      " << bildingid << endl;
+        cout << "Р’РµСЂСЃРёСЏ:         " << title << endl;
+        cout << "РџР»Р°С‚С„РѕСЂРјР°:      " << platform_version << endl;
+        cout << "Р’СЂРµРјСЏ СЂР°Р±РѕС‚С‹:   " << (point_time - start_time) / 1000 << " СЃРµРє" << endl;
+        cout << "РўРµРєСѓС‰РµРµ РІСЂРµРјСЏ:  " << getCurrentDateTime() << endl;
+        cout << "РђРєРєР°СѓРЅС‚:        " << account << endl;
+        cout << "ID СЃР±РѕСЂРєРё:      " << bildingid << endl;
         cout << "----------------------------------------------" << endl;
     }
 };
@@ -60,13 +61,13 @@ void puls_calc(string line) {
     if (first_non_space != string::npos) {
         line.erase(0, first_non_space);
     }
-    string comforsys = "cd " + current_path + "\\modules && pulsarcalc.exe " + line;
+    string comforsys = "cd " + current_path + "\\\\SytemPuls\\systemmodules && pulsarcalc.exe " + line;
     system(comforsys.c_str());
 }
 
 void puls_python(string line) {
     if (build_ID != "0000") {
-        cout << "В данной сборке отсутствует эта команда..." << endl;
+        cout << "Р’ РґР°РЅРЅРѕР№ СЃР±РѕСЂРєРµ РѕС‚СЃСѓС‚СЃС‚РІСѓРµС‚ СЌС‚Р° РєРѕРјР°РЅРґР°..." << endl;
     }
     else {
         line.replace(0, 7, "");
@@ -85,16 +86,16 @@ void puls_sysconfig(string line) {
     if (first_non_space != string::npos) {
         line.erase(0, first_non_space);
     }
-    string scfile = "cd " + current_path + "\\modules && sysconfig.exe";
-    cout << "Определение параметров системы... Пожалуйста подождите...\n" << endl;
+    string scfile = "cd " + current_path + "\\\\SytemPuls\\systemmodules && sysconfig.exe";
+    cout << "РћРїСЂРµРґРµР»РµРЅРёРµ РїР°СЂР°РјРµС‚СЂРѕРІ СЃРёСЃС‚РµРјС‹... РџРѕР¶Р°Р»СѓР№СЃС‚Р° РїРѕРґРѕР¶РґРёС‚Рµ...\n" << endl;
     system(scfile.c_str());
 
 }
 
 void sumulator_pulsar() {
-    string pathToSumPuls = "cd " + current_path + "\\modules && pulsarem.exe";
-    cout << "Внимание скоро начнется эмуляция пульсара.\nВо время эмуляции не нажимайте по консольному окну.\n"
-        << "Если нажали нажмите enter чтобы продолжить эмуляцию" << endl;
+    string pathToSumPuls = "cd " + current_path + "\\SytemPuls\\systemmodules && pulsarem.exe";
+    cout << "Р’РЅРёРјР°РЅРёРµ СЃРєРѕСЂРѕ РЅР°С‡РЅРµС‚СЃСЏ СЌРјСѓР»СЏС†РёСЏ РїСѓР»СЊСЃР°СЂР°.\nР’Рѕ РІСЂРµРјСЏ СЌРјСѓР»СЏС†РёРё РЅРµ РЅР°Р¶РёРјР°Р№С‚Рµ РїРѕ РєРѕРЅСЃРѕР»СЊРЅРѕРјСѓ РѕРєРЅСѓ.\n"
+        << "Р•СЃР»Рё РЅР°Р¶Р°Р»Рё РЅР°Р¶РјРёС‚Рµ enter С‡С‚РѕР±С‹ РїСЂРѕРґРѕР»Р¶РёС‚СЊ СЌРјСѓР»СЏС†РёСЋ" << endl;
     this_thread::sleep_for(std::chrono::milliseconds(1000));
     system("cls");
     system(pathToSumPuls.c_str());
@@ -102,16 +103,16 @@ void sumulator_pulsar() {
 }
 
 void show_help() {
-    cout << "\nДоступные команды:" << endl;
-    cout << "  calc <выражение>  - Калькулятор (например: calc 2+2)" << endl;
-    cout << "  python <скрипт>   - Запуск Python скрипта (только для сборки 0000)" << endl;
-    cout << "  sysconfig         - Показать конфигурацию системы" << endl;
-    cout << "  pinfo             - Показать информацию о системе" << endl;
-    cout << "  clear             - Очистить экран" << endl;
-    cout << "  help              - Показать эту справку" << endl;
-    cout << "  exit              - Выйти из PulsarVenv" << endl;
-    cout << "  sumulator_pulsar  - Запустить эмуляцию жизни пульсара" << endl;
-    cout << "  <имя_программы>   - Запуск программы из папки modules\n" << endl;
+    cout << "\nР”РѕСЃС‚СѓРїРЅС‹Рµ РєРѕРјР°РЅРґС‹:" << endl;
+    cout << "  calc <РІС‹СЂР°Р¶РµРЅРёРµ>  - РљР°Р»СЊРєСѓР»СЏС‚РѕСЂ (РЅР°РїСЂРёРјРµСЂ: calc 2+2)" << endl;
+    cout << "  python <СЃРєСЂРёРїС‚>   - Р—Р°РїСѓСЃРє Python СЃРєСЂРёРїС‚Р° (С‚РѕР»СЊРєРѕ РґР»СЏ СЃР±РѕСЂРєРё 0000)" << endl;
+    cout << "  sysconfig         - РџРѕРєР°Р·Р°С‚СЊ РєРѕРЅС„РёРіСѓСЂР°С†РёСЋ СЃРёСЃС‚РµРјС‹" << endl;
+    cout << "  pinfo             - РџРѕРєР°Р·Р°С‚СЊ РёРЅС„РѕСЂРјР°С†РёСЋ Рѕ СЃРёСЃС‚РµРјРµ" << endl;
+    cout << "  clear             - РћС‡РёСЃС‚РёС‚СЊ СЌРєСЂР°РЅ" << endl;
+    cout << "  help              - РџРѕРєР°Р·Р°С‚СЊ СЌС‚Сѓ СЃРїСЂР°РІРєСѓ" << endl;
+    cout << "  exit              - Р’С‹Р№С‚Рё РёР· PulsarVenv" << endl;
+    cout << "  sumulator_pulsar  - Р—Р°РїСѓСЃС‚РёС‚СЊ СЌРјСѓР»СЏС†РёСЋ Р¶РёР·РЅРё РїСѓР»СЊСЃР°СЂР°" << endl;
+    cout << "  <РёРјСЏ_РїСЂРѕРіСЂР°РјРјС‹>   - Р—Р°РїСѓСЃРє РїСЂРѕРіСЂР°РјРјС‹ РёР· РїР°РїРєРё modules\n" << endl;
 }
 
 void PulsarConsoleClear() {
@@ -122,6 +123,60 @@ void PulsarConsoleClear() {
 
 void AccountCommand(string line) {
     line.replace(0, 8, "");
+    line.erase(0, line.find_first_not_of(' '));
+    line.erase(line.find_last_not_of(' ') + 1);
+    string name, password;
+    if (line.starts_with("add")) {
+        cout << "Р’РІРµРґРёС‚Рµ РёРјСЏ Р°РєРєР°СѓРЅС‚Р°: ";
+        getline(cin, name);
+        cout << "РЎРџР РђР’РљРђ - РµСЃР»Рё С…РѕС‚РёС‚Рµ СЃРѕР·РґР°С‚СЊ Р°РєРєР°СѓРЅС‚ Р±РµР· РїР°СЂРѕР»СЏ СѓРєР°Р¶РёС‚Рµ \"none\"" << endl;
+        while (true) {
+            cout << "Р’РІРµРґРёС‚Рµ РїР°СЂРѕР»СЊ Р°РєРєР°СѓРЅС‚Р°: ";
+            getline(cin, password);
+            if (password.length() < 4) {
+                cout << "\nРџР°СЂРѕР»СЊ РґРѕР»Р¶РµРЅ СЃРѕРґРµСЂР¶Р°С‚СЊ РјРёРЅРёРјСѓРј 4 СЃРёРјРІРѕР»Р°";
+                continue;
+            }
+            break;
+        }
+        string newDirecrotyAccount = current_path + "\\accounts\\" + name;
+        filesystem::create_directory(newDirecrotyAccount);
+        filesystem::create_directory(newDirecrotyAccount + "\\accountcfg");
+        filesystem::create_directory(newDirecrotyAccount + "\\userfiles");
+        ofstream f;
+        f.open(newDirecrotyAccount + "\\accountcfg\\password.ppas");
+        f << password;
+        f.close();
+        cout << "РЈСЃРїРµС€РЅРѕ СЃРѕР·РґР°РЅ Р°РєРєР°СѓРЅС‚\nРРјСЏ - " << name << "     РџР°СЂРѕР»СЊ - " << password << endl;
+        this_thread::sleep_for(std::chrono::milliseconds(1100));
+    }
+    else if (line.starts_with("remove")) {
+
+        cout << "Р’РІРµРґРёС‚Рµ РёРјСЏ Р°РєРєР°СѓРЅС‚Р°: ";
+        getline(cin, name);
+        string pathToAccount = current_path + "\\accounts\\" + name;
+        cout << "Р’РІРµРґРёС‚Рµ РїР°СЂРѕР»СЊ Р°РєРєР°СѓРЅС‚Р°: ";
+        getline(cin, password);
+        if (filesystem::exists(pathToAccount)) {
+            fstream f;
+            f.open(current_path + "\\accounts\\" + name + "\\accountcfg\\password.ppas", fstream::in | fstream::out | fstream::app);
+            string correctPassword;
+            getline(f, correctPassword);
+            f.close();
+            if (password == correctPassword) {
+                filesystem::remove_all(pathToAccount);
+                cout << "РђРєРєР°СѓРЅС‚ СѓСЃРїРµС€РЅРѕ СѓРґР°Р»РµРЅ." << endl;
+            }
+            else {
+                cout << "РќРµРІРµСЂРЅС‹Р№ РїР°СЂРѕР»СЊ" << endl;
+            }
+
+        }
+        else {
+            cout << "РўР°РєРѕРіРѕ Р°РєРєР°СѓРЅС‚Р° РЅРµ СЃСѓС‰РµСЃС‚РІСѓРµС‚" << endl;
+        }
+    }
+
 
 }
 
@@ -158,7 +213,7 @@ int pulsarstart(string bildn, string AccountName) {
                 puls_calc(com);
             }
             else {
-                cout << "Ошибка: Введите выражение для вычисления (например: calc 2+2)" << endl;
+                cout << "РћС€РёР±РєР°: Р’РІРµРґРёС‚Рµ РІС‹СЂР°Р¶РµРЅРёРµ РґР»СЏ РІС‹С‡РёСЃР»РµРЅРёСЏ (РЅР°РїСЂРёРјРµСЂ: calc 2+2)" << endl;
             }
         }
         else if (com == "clear") {
@@ -172,7 +227,7 @@ int pulsarstart(string bildn, string AccountName) {
                 puls_python(com);
             }
             else {
-                cout << "Ошибка: Укажите скрипт для запуска (например: python script.py)" << endl;
+                cout << "РћС€РёР±РєР°: РЈРєР°Р¶РёС‚Рµ СЃРєСЂРёРїС‚ РґР»СЏ Р·Р°РїСѓСЃРєР° (РЅР°РїСЂРёРјРµСЂ: python script.py)" << endl;
             }
         }
         else if (com.substr(0, 9) == "sysconfig") {
@@ -184,9 +239,9 @@ int pulsarstart(string bildn, string AccountName) {
         else if (com == "sumulator_pulsar") {
             sumulator_pulsar();
         }
-        else if (com.substr(0, 8) == "account") {
-            return 1;
-            //AccountCommand(com);
+        else if (com.substr(0, 7) == "account") {
+            cout << com << endl;
+            AccountCommand(com);
         }
         else {
             string checkfile;
@@ -202,7 +257,7 @@ int pulsarstart(string bildn, string AccountName) {
                 system(cdmodule.c_str());
             }
             else {
-                cout << "Ошибка: Команда не распознана. Введите 'help' для справки." << endl;
+                cout << "РћС€РёР±РєР°: РљРѕРјР°РЅРґР° РЅРµ СЂР°СЃРїРѕР·РЅР°РЅР°. Р’РІРµРґРёС‚Рµ 'help' РґР»СЏ СЃРїСЂР°РІРєРё." << endl;
             }
         }
     }
