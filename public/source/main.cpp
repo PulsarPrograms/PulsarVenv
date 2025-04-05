@@ -45,6 +45,11 @@ void CreateAccount() {
         f.open(newDirecrotyAccount + "\\accountcfg\\password.ppas");
         f << password;
         f.close();
+        ofstream f1;
+        f1.open(newDirecrotyAccount + "\\accountcfg\\style.pcfg");
+        f1 << "normal\n";
+        f1 << "normal\n";
+        f1.close();
         cout << "Успешно создан аккаунт\nИмя - " << name << "     Пароль - " << password << endl;
         this_thread::sleep_for(std::chrono::milliseconds(1100));
         system("cls");

@@ -11,9 +11,12 @@
 #include <thread>
 #include <windows.h>
 #include <fstream>
+#include <cctype>
 using namespace std;
 string current_path;
 string build_ID;
+bool isStandartStyle = true;
+//TODO 06.04.2025: не работает большой стиль + запись стилей в файл надо все исправить + тест
 
 /*Коды возвращаемых ошибок
 0001 - код выхода из системы*/
@@ -23,6 +26,7 @@ mutex consoleMutex;
 
 void PulsarConsoleClear();
 int configAnalyze(string bildn, string AccountName);
+bool isValidHexColor(string s);
 
 class CurrentPulsarInfo {
 public:
@@ -60,6 +64,59 @@ string CurrentPulsarInfo::platform_version = "Windows";
 string CurrentPulsarInfo::account = "";
 int CurrentPulsarInfo::start_time = 0;
 string CurrentPulsarInfo::bildingid = "";
+
+int changeStyle() {
+    string newColor, newStyle;
+    string name = CurrentPulsarInfo::account;
+    fstream f;
+    f.open(current_path + "\\accounts\\" + name + "\\accountcfg\\style.pcfg", fstream::in | fstream::out | fstream::app);
+    string correctPassword;
+    while (1) {
+        cout << "Введите цвет интерфеса 2 - шестнандцатиричных числа: (help для помощи): ";
+        getline(cin, newColor);
+        if (newColor == "help") {
+            cout << "Атрибуты цветов задаются в виде ДВУХ шестнадцатеричных цифр — первая" << endl;
+            cout << "задает цвет фона, а вторая определяет цвет переднего плана.Каждая цифра" << endl;
+            cout << "может иметь следующие значения : " << endl;
+            cout << "0 = Черный 8 = Серый" << endl;
+            cout << "1 = Синий 9 = Светло - синий" << endl;
+            cout << "2 = Зеленый A = Светло - зеленый" << endl;
+            cout << "3 = Голубой B = Светло - голубой" << endl;
+            cout << "4 = Красный C = Светло - красный" << endl;
+            cout << "5 = Лиловый D = Светло - лиловый" << endl;
+            cout << "6 = Желтый E = Светло - желтый" << endl;
+            cout << "7 = Белый F = Ярко - белый" << endl;
+        }
+        else {
+            if (!isValidHexColor(newColor)) {
+                cout << "Неправильный ввод" << endl;
+                continue;
+            }
+            f << newColor + "\n";
+            break;
+        }
+    }
+    while (true) {
+        cout << "Введите стиль интерфейса (big/normal): ";
+        getline(cin, newStyle);
+        if (newStyle != "big" && newStyle != "normal") {
+            cout << "Неправильный ввод" << endl;
+            continue;
+        }
+        f << newStyle + "\n";
+        break;
+    }
+    f.close();
+}
+
+bool isValidHexDigit(char c) {
+    return isxdigit(c) != 0;
+}
+
+bool isValidHexColor(string s) {
+    if (s.length() != 2) return false;
+    return isValidHexDigit(s[0]) && isValidHexDigit(s[1]);
+}
 
 void puls_calc(string line) {
     line.replace(0, 4, "");
@@ -109,24 +166,56 @@ void sumulator_pulsar() {
 }
 
 void show_help() {
-    /*cout << "\nДоступные команды:" << endl;
-    cout << "  calc <выражение>  - Калькулятор (например: calc 2+2)" << endl;
-    cout << "  python <скрипт>   - Запуск Python скрипта (только для сборки 0000)" << endl;
-    cout << "  sysconfig         - Показать конфигурацию системы" << endl;
-    cout << "  pinfo             - Показать информацию о системе" << endl;
-    cout << "  clear             - Очистить экран" << endl;
-    cout << "  help              - Показать эту справку" << endl;
-    cout << "  exit              - Выйти из PulsarVenv" << endl;
-    cout << "  sumulator_pulsar  - Запустить эмуляцию жизни пульсара" << endl;
-    cout << "  <имя_программы>   - Запуск программы из папки modules\n" << endl;*/
-    string PathToOpen = "cd " + current_path + "\\public\\documentation && notepad PulsarCommandHelp.txt";
-    system(PathToOpen.c_str());
+    cout << "PulsarVenv 0.0.1-alpha - Справочник по командам" << endl << endl;
+
+    cout << "Основные команды:" << endl;
+    cout << "=================" << endl;
+    cout << "help               - Показать эту справку" << endl;
+    cout << "exit               - Выйти из системы" << endl;
+    cout << "clear              - Очистить экран консоли" << endl;
+    cout << "pinfo              - Показать информацию о системе (версия, время работы и т.д.)" << endl << endl;
+
+    cout << "Команды работы с системой:" << endl;
+    cout << "=========================" << endl;
+    cout << "sysconfig          - Показать конфигурацию системы" << endl;
+    cout << "sumulator_pulsar   - Запустить эмуляцию пульсара (требует подтверждения)" << endl << endl;
+
+    cout << "Команды для вычислений:" << endl;
+    cout << "=======================" << endl;
+    cout << "calc <выражение>   - Выполнить математическое вычисление (например: calc 2+2*3)" << endl << endl;
+
+    cout << "Работа с Python:" << endl;
+    cout << "===============" << endl;
+    cout << "python <скрипт>    - Запустить Python скрипт (доступно только в сборке 0000)" << endl << endl;
+
+    cout << "Управление аккаунтами:" << endl;
+    cout << "=====================" << endl;
+    cout << "account add        - Создать новый аккаунт" << endl;
+    cout << "account remove     - Удалить существующий аккаунт" << endl;
+    cout << "account swap       - Сменить текущий аккаунт" << endl << endl;
+
+    cout << "Запуск программ:" << endl;
+    cout << "===============" << endl;
+    cout << "<имя_программы>    - Запустить программу из папки modules" << endl;
+    cout << "                    (можно указывать с расширением .exe или без)" << endl;
 }
 
 void PulsarConsoleClear() {
     CurrentPulsarInfo clearinf;
-    system("cls");
-    cout << clearinf.title << endl;
+    if (isStandartStyle == true) {
+        system("cls");
+        cout << clearinf.title << endl;
+    }
+    else {
+        cout << "______                                ________     _________      ______ " << endl;
+        cout << "|     |    |      /|     |           |            |        |      |     |" << endl;
+        cout << "|_____|    |    /  |     |           |_________   |________|      |_____|      " << endl;
+        cout << "|          |  /    |     |                    |   |        |      | \\" << endl;
+        cout << "|          |/      |     |________    ________|   |        |      |    \\" << endl;
+        cout << endl;
+        cout << endl;
+        system("cls");
+    }
 }
 
 void AccountCommand(string line) {
@@ -223,8 +312,25 @@ int configAnalyze(string bildn, string AccountName) {
     build_ID = bildn;
     filesystem::path tfp = filesystem::current_path();
     current_path = tfp.string();
+    string color, style;
+    fstream f;
+    string pathToCfg = current_path + "\\accounts\\" + AccountName + "\\accountcfg\\style.pcfg";
+    f.open(pathToCfg, fstream::in | fstream::out | fstream::app);
+    if (!f.is_open()) {
+        cout << "Ошибка при работе с файлом style.pcfg" << endl;
+    }
+    getline(f, color);
+    getline(f, style);
+    f.close();
+    if (color != "normal") {
+        string setColor = "color " + color;
+        system(setColor.c_str());
+    } if (style == "big") {
+        isStandartStyle = false;
+    }
     return 0;
 }
+    
 int pulsarstart(string bildn, string AccountName) {
     setlocale(LC_ALL, "Ru");
     configAnalyze(bildn, AccountName);
@@ -277,6 +383,9 @@ int pulsarstart(string bildn, string AccountName) {
         }
         else if (com.substr(0, 7) == "account") {
             AccountCommand(com);
+        }
+        else if (com.substr(0, 12) == "change style") {
+            changeStyle();
         }
         else {
             string checkfile;
