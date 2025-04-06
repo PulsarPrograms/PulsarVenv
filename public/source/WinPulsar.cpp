@@ -16,7 +16,7 @@ using namespace std;
 string current_path;
 string build_ID;
 bool isStandartStyle = true;
-//TODO 06.04.2025: не работает большой стиль + запись стилей в файл надо все исправить + тест
+//TODO 
 
 /*Коды возвращаемых ошибок
 0001 - код выхода из системы*/
@@ -69,7 +69,7 @@ int changeStyle() {
     string newColor, newStyle;
     string name = CurrentPulsarInfo::account;
     fstream f;
-    f.open(current_path + "\\accounts\\" + name + "\\accountcfg\\style.pcfg", fstream::in | fstream::out | fstream::app);
+    f.open(current_path + "\\accounts\\" + name + "\\accountcfg\\style.pcfg", fstream::in | fstream::out | ios::trunc);
     string correctPassword;
     while (1) {
         cout << "Введите цвет интерфеса 2 - шестнандцатиричных числа: (help для помощи): ";
@@ -107,6 +107,10 @@ int changeStyle() {
         break;
     }
     f.close();
+    configAnalyze(build_ID, CurrentPulsarInfo::account);
+    PulsarConsoleClear();
+    
+
 }
 
 bool isValidHexDigit(char c) {
@@ -126,21 +130,6 @@ void puls_calc(string line) {
     }
     string comforsys = "cd " + current_path + "\\\\SytemPuls\\systemmodules && pulsarcalc.exe " + line;
     system(comforsys.c_str());
-}
-
-void puls_python(string line) {
-    if (build_ID != "0000") {
-        cout << "В данной сборке отсутствует эта команда..." << endl;
-    }
-    else {
-        line.replace(0, 7, "");
-        size_t first_non_space = line.find_first_not_of(' ');
-        if (first_non_space != string::npos) {
-            line.erase(0, first_non_space);
-        }
-        string pfile = "cd " + current_path + "\\python313puls && ppython.exe " + line;
-        system(pfile.c_str());
-    }
 }
 
 void puls_sysconfig(string line) {
@@ -201,12 +190,12 @@ void show_help() {
 }
 
 void PulsarConsoleClear() {
-    CurrentPulsarInfo clearinf;
     if (isStandartStyle == true) {
         system("cls");
-        cout << clearinf.title << endl;
+        cout << CurrentPulsarInfo::title << endl;
     }
     else {
+        system("cls");
         cout << "______                                ________     _________      ______ " << endl;
         cout << "|     |    |      /|     |           |            |        |      |     |" << endl;
         cout << "|_____|    |    /  |     |           |_________   |________|      |_____|      " << endl;
@@ -214,7 +203,6 @@ void PulsarConsoleClear() {
         cout << "|          |/      |     |________    ________|   |        |      |    \\" << endl;
         cout << endl;
         cout << endl;
-        system("cls");
     }
 }
 
@@ -303,7 +291,6 @@ void AccountCommand(string line) {
 }
 
 int configAnalyze(string bildn, string AccountName) {
-    CurrentPulsarInfo::start_time = clock();
     CurrentPulsarInfo::bildingid = bildn;
     CurrentPulsarInfo::account = AccountName;
 
@@ -333,11 +320,11 @@ int configAnalyze(string bildn, string AccountName) {
     
 int pulsarstart(string bildn, string AccountName) {
     setlocale(LC_ALL, "Ru");
+    CurrentPulsarInfo::start_time = clock();
     configAnalyze(bildn, AccountName);
     string com;
     system("cls");
-    cout << CurrentPulsarInfo::title << endl; 
-
+    PulsarConsoleClear();
     while (true) {
         cout << "$> ";
         getline(cin, com);
@@ -363,14 +350,6 @@ int pulsarstart(string bildn, string AccountName) {
         }
         else if (com == "pinfo") {
             CurrentPulsarInfo::ShowInfo();
-        }
-        else if (com.substr(0, 7) == "python") {
-            if (com.length() > 7) {
-                puls_python(com);
-            }
-            else {
-                cout << "Ошибка: Укажите скрипт для запуска (например: python script.py)" << endl;
-            }
         }
         else if (com.substr(0, 9) == "sysconfig") {
             puls_sysconfig(com);
