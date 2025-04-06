@@ -12,12 +12,12 @@
 #include <windows.h>
 #include <fstream>
 #include <cctype>
+#include "C:\Users\user\source\repos\PulsarVenv\PulsarVenv\pulsFileSystem.h"
 using namespace std;
 string current_path;
 string build_ID;
 bool isStandartStyle = true;
-//TODO 
-
+//TODO  смена имени аккаугта \ создание файлов + работа с ними
 /*Коды возвращаемых ошибок
 0001 - код выхода из системы*/
 
@@ -25,7 +25,7 @@ atomic<bool> timeThreadRunning(true);
 mutex consoleMutex;
 
 void PulsarConsoleClear();
-int configAnalyze(string bildn, string AccountName);
+int configAnalyze(string bildn, string AccountName, string pas);
 bool isValidHexColor(string s);
 
 class CurrentPulsarInfo {
@@ -33,6 +33,7 @@ public:
     static string title;
     static string platform_version;
     static string account;
+    static string password;
     static int start_time;
     static string bildingid;
 
@@ -55,6 +56,7 @@ public:
         cout << "Время работы:   " << (point_time - start_time) / 1000 << " сек" << endl;
         cout << "Текущее время:  " << getCurrentDateTime() << endl;
         cout << "Аккаунт:        " << account << endl;
+        cout << "Пароль:         " << password << endl;
         cout << "ID сборки:      " << bildingid << endl;
         cout << "----------------------------------------------" << endl;
     }
@@ -64,6 +66,7 @@ string CurrentPulsarInfo::platform_version = "Windows";
 string CurrentPulsarInfo::account = "";
 int CurrentPulsarInfo::start_time = 0;
 string CurrentPulsarInfo::bildingid = "";
+string CurrentPulsarInfo::password = "";
 
 int changeStyle() {
     string newColor, newStyle;
@@ -107,7 +110,7 @@ int changeStyle() {
         break;
     }
     f.close();
-    configAnalyze(build_ID, CurrentPulsarInfo::account);
+    configAnalyze(build_ID, CurrentPulsarInfo::account, CurrentPulsarInfo::password);
     PulsarConsoleClear();
     
 
@@ -274,7 +277,7 @@ void AccountCommand(string line) {
             getline(f, correctPassword);
             f.close();
             if (password == correctPassword) {
-                configAnalyze(build_ID, name);
+                configAnalyze(build_ID, name, password);
                 PulsarConsoleClear();
             }
             else {
@@ -286,14 +289,37 @@ void AccountCommand(string line) {
             cout << "Такого аккаунта не существует" << endl;
         }
     }
+    else if(line.starts_with("change password")){
+        string check_true_password;
+        cout << "Введите пароль от аккаунта: ";
+        getline(cin, check_true_password);
+        if (CurrentPulsarInfo::password == check_true_password) {
+            cout << "Введите новый пароль от аккаунта: ";
+            string newPassword;
+            getline(cin, newPassword);
+            ofstream f;
+            f.open(current_path + "\\accounts\\" + CurrentPulsarInfo::account + "\\accountcfg\\password.ppas", ios::trunc);
+            if (!f.is_open()) {
+                cout << "Ошибка смены пароля" << endl;
+            } else {
+                f << newPassword;
+                configAnalyze(build_ID, CurrentPulsarInfo::account, newPassword);
+            }
+            f.close();
+        }
+        else {
+            cout << "Неверный пароль" << endl;
+        }
+    }
+    
 
 
 }
 
-int configAnalyze(string bildn, string AccountName) {
+int configAnalyze(string bildn, string AccountName, string pas) {
     CurrentPulsarInfo::bildingid = bildn;
     CurrentPulsarInfo::account = AccountName;
-
+    CurrentPulsarInfo::password = pas;
     string setConsoleTitlePuls = "title PulsarVenv " + AccountName;
     system(setConsoleTitlePuls.c_str());
     build_ID = bildn;
@@ -318,10 +344,10 @@ int configAnalyze(string bildn, string AccountName) {
     return 0;
 }
     
-int pulsarstart(string bildn, string AccountName) {
+int pulsarstart(string bildn, string AccountName, string pas) {
     setlocale(LC_ALL, "Ru");
     CurrentPulsarInfo::start_time = clock();
-    configAnalyze(bildn, AccountName);
+    configAnalyze(bildn, AccountName, pas);
     string com;
     system("cls");
     PulsarConsoleClear();
@@ -336,6 +362,9 @@ int pulsarstart(string bildn, string AccountName) {
         }
         else if (com == "exit") {
             return 0101;
+        }
+        else if (com.substr(0, 2) == "fs") {
+            fileCommand(com, current_path, CurrentPulsarInfo::account);
         }
         else if (com.substr(0, 4) == "calc") {
             if (com.length() > 4) {

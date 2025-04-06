@@ -142,7 +142,7 @@ int main(){
                        }
                         
                     }
-                    code = pulsarstart(build_number, name);
+                    code = pulsarstart(build_number, name, password);
                     
             #elif __linux__
         cout << "Linux система определена\n" << endl;
