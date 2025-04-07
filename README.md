@@ -6,7 +6,7 @@ Available systems: Windows
 
 Documentation:
 
-RU - [[RUDOC]]
+RU - [link](./public/documentation/RUDOC.md)
 ENG - 
 
 
