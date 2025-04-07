@@ -16,7 +16,7 @@
 using namespace std;
 string current_path;
 string build_ID;
-bool isStandartStyle = true;
+string style = "";
 //TODO  смена имени аккаугта \ создание файлов + работа с ними
 /*Коды возвращаемых ошибок
 0001 - код выхода из системы*/
@@ -100,12 +100,8 @@ int changeStyle() {
         }
     }
     while (true) {
-        cout << "Введите стиль интерфейса (big/normal): ";
+        cout << "Введите стиль интерфейса : ";
         getline(cin, newStyle);
-        if (newStyle != "big" && newStyle != "normal") {
-            cout << "Неправильный ввод" << endl;
-            continue;
-        }
         f << newStyle + "\n";
         break;
     }
@@ -131,7 +127,7 @@ void puls_calc(string line) {
     if (first_non_space != string::npos) {
         line.erase(0, first_non_space);
     }
-    string comforsys = "cd " + current_path + "\\\\SytemPuls\\systemmodules && pulsarcalc.exe " + line;
+    string comforsys = "cd " + current_path + "\\\\SystemPuls\\systemmodules && pulsarcalc.exe " + line;
     system(comforsys.c_str());
 }
 
@@ -141,14 +137,14 @@ void puls_sysconfig(string line) {
     if (first_non_space != string::npos) {
         line.erase(0, first_non_space);
     }
-    string scfile = "cd " + current_path + "\\\\SytemPuls\\systemmodules && sysconfig.exe";
+    string scfile = "cd " + current_path + "\\\\SystemPuls\\systemmodules && sysconfig.exe";
     cout << "Определение параметров системы... Пожалуйста подождите...\n" << endl;
     system(scfile.c_str());
 
 }
 
 void sumulator_pulsar() {
-    string pathToSumPuls = "cd " + current_path + "\\SytemPuls\\systemmodules && pulsarem.exe";
+    string pathToSumPuls = "cd " + current_path + "\\SystemPuls\\systemmodules && pulsarem.exe";
     cout << "Внимание скоро начнется эмуляция пульсара.\nВо время эмуляции не нажимайте по консольному окну.\n"
         << "Если нажали нажмите enter чтобы продолжить эмуляцию" << endl;
     this_thread::sleep_for(std::chrono::milliseconds(1000));
@@ -193,19 +189,54 @@ void show_help() {
 }
 
 void PulsarConsoleClear() {
-    if (isStandartStyle == true) {
+    if (style == "normal") {
         system("cls");
         cout << CurrentPulsarInfo::title << endl;
     }
+    else if (style == "big") {
+        system("cls");
+        cout << R"P(
+  _____       _                
+ |  __ \     | |               
+ | |__) |   _| |___  __ _ _ __ 
+ |  ___/ | | | / __|/ _` | '__|
+ | |   | |_| | \__ \ (_| | |   
+ |_|    \__,_|_|___/\__,_|_|
+ 
+)P" << endl;
+    }
+
+    else if (style == "graffity") {
+        system("cls");
+        cout << R"P(
+__________      .__                        
+\______   \__ __|  |   ___________ _______ 
+ |     ___/  |  \  |  /  ___/\__  \\_  __ \
+ |    |   |  |  /  |__\___ \  / __ \|  | \/
+ |____|   |____/|____/____  >(____  /__|   
+                          \/      \/
+)P" << endl;
+    }
+    else if (style == "epic") {
+        system("cls");
+        cout << R"P(
+
+ _______           _        _______  _______  _______ 
+(  ____ )|\     /|( \      (  ____ \(  ___  )(  ____ )
+| (    )|| )   ( || (      | (    \/| (   ) || (    )|
+| (____)|| |   | || |      | (_____ | (___) || (____)|
+|  _____)| |   | || |      (_____  )|  ___  ||     __)
+| (      | |   | || |            ) || (   ) || (\ (   
+| )      | (___) || (____/\/\____) || )   ( || ) \ \__
+|/       (_______)(_______/\_______)|/     \||/   \__/
+                                                      
+                  
+)P" << endl;
+    }
+
     else {
         system("cls");
-        cout << "______                                ________     _________      ______ " << endl;
-        cout << "|     |    |      /|     |           |            |        |      |     |" << endl;
-        cout << "|_____|    |    /  |     |           |_________   |________|      |_____|      " << endl;
-        cout << "|          |  /    |     |                    |   |        |      | \\" << endl;
-        cout << "|          |/      |     |________    ________|   |        |      |    \\" << endl;
-        cout << endl;
-        cout << endl;
+        cout << CurrentPulsarInfo::title << endl;
     }
 }
 
@@ -325,7 +356,7 @@ int configAnalyze(string bildn, string AccountName, string pas) {
     build_ID = bildn;
     filesystem::path tfp = filesystem::current_path();
     current_path = tfp.string();
-    string color, style;
+    string color;
     fstream f;
     string pathToCfg = current_path + "\\accounts\\" + AccountName + "\\accountcfg\\style.pcfg";
     f.open(pathToCfg, fstream::in | fstream::out | fstream::app);
@@ -338,9 +369,7 @@ int configAnalyze(string bildn, string AccountName, string pas) {
     if (color != "normal") {
         string setColor = "color " + color;
         system(setColor.c_str());
-    } if (style == "big") {
-        isStandartStyle = false;
-    }
+    } 
     return 0;
 }
     
@@ -394,6 +423,12 @@ int pulsarstart(string bildn, string AccountName, string pas) {
         }
         else if (com.substr(0, 12) == "change style") {
             changeStyle();
+        }
+        else if (com == "chembd") {
+            string pathToChemBd = "cd " + current_path + "\\SystemPuls\\systemmodules && chembd.exe";
+            system(pathToChemBd.c_str());
+            PulsarConsoleClear();
+
         }
         else {
             string checkfile;
