@@ -9,7 +9,6 @@
 
 using namespace std;
 
-// Класс для хранения информации о химическом элементе
 class AtomicElement {
     // создал zeroqxq
 private:
@@ -57,8 +56,6 @@ public:
         crystalStructure(crystal), groupBlock(block), period(per), group(grp),
         discoveryYear(discYear), discoverers(disc) {
     }
-
-    // Метод для вывода полной информации об элементе
     void printFullInfo() const {
         cout << "\n=================================\n";
         cout << "| " << left << setw(30) << ("Элемент: " + name + " (" + englishName + ")") << "|\n";
@@ -263,7 +260,6 @@ void initializeCompleteElementDatabase(map<int, AtomicElement>& elementsByNumber
         cout << "3. Показать элементы по группам" << endl;
         cout << "4. Поиск по диапазону атомных масс" << endl;
         cout << "5. Выход" << endl;
-        cout << "6. Очистка экрана" << endl;
         cout << "Выберите действие: ";
     }
 
@@ -366,7 +362,7 @@ void initializeCompleteElementDatabase(map<int, AtomicElement>& elementsByNumber
         initializeCompleteElementDatabase(elementsByNumber, elementsBySymbol);
 
         int choice;
-        while(true) {
+        do {
             displayMainMenu();
             cin >> choice;
             cin.ignore(); // Очистка буфера ввода
@@ -387,12 +383,10 @@ void initializeCompleteElementDatabase(map<int, AtomicElement>& elementsByNumber
             case 5:
                 cout << "Выход из программы..." << endl;
                 break;
-            case 6:
-                system("cls");
             default:
                 cout << "Неверный выбор! Попробуйте снова." << endl;
             }
-        }
+        } while (choice != 5);
 
         return 0;
     }
