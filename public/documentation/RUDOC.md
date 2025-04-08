@@ -2,7 +2,7 @@
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://license/)  
 [![Windows Support](https://img.shields.io/badge/Windows-7+-green?logo=windows)](https://github.com/zeroqxq/PulsarVenv/releases)  
-**Минималистичная консольная оболочка для Windows с кастомизацией и модульностью.**
+**Минималистичная консольная оболочка для Windows с кастомизацией и модульностью.**.
 
 ---
 
