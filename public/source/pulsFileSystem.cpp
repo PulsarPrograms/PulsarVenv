@@ -1,4 +1,4 @@
-#include <string>
+ï»¿#include <string>
 #include <iostream>
 #include <filesystem>
 #include <vector>
@@ -10,8 +10,8 @@ int fileCommand(std::string line, std::string curpath, std::string acc_name) {
 	line.erase(0, line.find_first_not_of(' '));
 	line.erase(line.find_last_not_of(' ') + 1);
 	if (line.substr(0, 4) == "help") {
-		cout << "md - ñîçäàòü äèððåêòîðèþ" << endl;
-		cout << "ld - ïîêàçàòü âñå äèððåêòîðèè è ôàéëû â íèõ" << endl;
+		cout << "md - ÑÐ¾Ð·Ð´Ð°Ñ‚ÑŒ Ð´Ð¸Ñ€Ñ€ÐµÐºÑ‚Ð¾Ñ€Ð¸ÑŽ" << endl;
+		cout << "ld - Ð¿Ð¾ÐºÐ°Ð·Ð°Ñ‚ÑŒ Ð²ÑÐµ Ð´Ð¸Ñ€Ñ€ÐµÐºÑ‚Ð¾Ñ€Ð¸Ð¸ Ð¸ Ñ„Ð°Ð¹Ð»Ñ‹ Ð² Ð½Ð¸Ñ…" << endl;
 	}
 	if (line.substr(0, 2) == "md") {
 		line.replace(0, 2, "");
