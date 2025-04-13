@@ -1,4 +1,4 @@
-﻿#include "wp.h"
+﻿#include "winPulsar.h"
 #include <atomic>
 #include <chrono>
 #include <cstdlib>
@@ -17,6 +17,8 @@ using namespace std;
 string current_path;
 string build_ID;
 string style = "";
+bool isLog = true;
+bool isError = true;
 //TODO  смена имени аккаугта \ создание файлов + работа с ними
 /*Коды возвращаемых ошибок
 0001 - код выхода из системы*/
@@ -24,7 +26,7 @@ string style = "";
 atomic<bool> timeThreadRunning(true);
 mutex consoleMutex;
 
-void PulsarConsoleClear();
+int PulsarConsoleClear();
 int configAnalyze(string bildn, string AccountName, string pas);
 bool isValidHexColor(string s);
 
@@ -61,7 +63,7 @@ public:
         cout << "----------------------------------------------" << endl;
     }
 };
-string CurrentPulsarInfo::title = "PulsarVenv 0.0.1-alpha";
+string CurrentPulsarInfo::title = "PulsarVenv 0.2.5";
 string CurrentPulsarInfo::platform_version = "Windows";
 string CurrentPulsarInfo::account = "";
 int CurrentPulsarInfo::start_time = 0;
@@ -137,9 +139,9 @@ void puls_sysconfig(string line) {
     if (first_non_space != string::npos) {
         line.erase(0, first_non_space);
     }
-    string scfile = "cd " + current_path + "\\\\SystemPuls\\systemmodules && sysconfig.exe";
     cout << "Определение параметров системы... Пожалуйста подождите...\n" << endl;
-    system(scfile.c_str());
+    string PathwattSysInfo = "cd " + current_path + "\\SystemPuls\\" + "\\systemmodules\\" + "\\watt & watt.exe \"" + current_path + "\\SystemPuls\\" + "\\systemmodules\\" + "\\watt\\systeminfo\\sysinfo.wt\"";
+    system(PathwattSysInfo.c_str());
 
 }
 
@@ -161,7 +163,8 @@ void show_help() {
     cout << "help               - Показать эту справку" << endl;
     cout << "exit               - Выйти из системы" << endl;
     cout << "clear              - Очистить экран консоли" << endl;
-    cout << "pinfo              - Показать информацию о системе (версия, время работы и т.д.)" << endl << endl;
+    cout << "pinfo              - Показать информацию о Pulsar (версия, время работы и т.д.)" << endl << endl;
+    cout << "сруьви             - Химическая база данных" << endl << endl;
 
     cout << "Команды работы с системой:" << endl;
     cout << "=========================" << endl;
@@ -171,10 +174,6 @@ void show_help() {
     cout << "Команды для вычислений:" << endl;
     cout << "=======================" << endl;
     cout << "calc <выражение>   - Выполнить математическое вычисление (например: calc 2+2*3)" << endl << endl;
-
-    cout << "Работа с Python:" << endl;
-    cout << "===============" << endl;
-    cout << "python <скрипт>    - Запустить Python скрипт (доступно только в сборке 0000)" << endl << endl;
 
     cout << "Управление аккаунтами:" << endl;
     cout << "=====================" << endl;
@@ -188,14 +187,40 @@ void show_help() {
     cout << "                    (можно указывать с расширением .exe или без)" << endl;
 }
 
-void PulsarConsoleClear() {
-    if (style == "normal") {
-        system("cls");
-        cout << CurrentPulsarInfo::title << endl;
+int PulsarConsoleClear() {
+    system("cls");
+    if (filesystem::exists(current_path + "\\accounts\\" + CurrentPulsarInfo::account + "\\clearscript.txt")) {
+        fstream f;
+        f.open(current_path + "\\accounts\\" + CurrentPulsarInfo::account + "\\clearscript.txt", fstream::in | fstream::out | ios::app);
+        if (!f.is_open()) {
+            cout << "Ошибка работы с файлом - " << current_path + "\\accounts\\" + CurrentPulsarInfo::account + "\\clearscript.txt" << endl;
+            return 1;
+        }
+        string linef;
+        while (getline(f, linef)) {
+            cout << linef << endl;
+        }
     }
-    else if (style == "big") {
-        system("cls");
-        cout << R"P(
+    else if (filesystem::exists(current_path + "\\accounts\\" + CurrentPulsarInfo::account + "\\clearscript.puls")) {
+        fstream f;
+        f.open(current_path + "\\accounts\\" + CurrentPulsarInfo::account + "\\clearscript.puls", fstream::in | fstream::out | ios::app);
+        if (!f.is_open()) {
+            cout << "Ошибка работы с файлом - " << current_path + "\\accounts\\" + CurrentPulsarInfo::account + "\\clearscript.puls" << endl;
+            return 1;
+        }
+        string linef;
+        while (getline(f, linef)) {
+            cout << linef << endl;
+        }
+    }
+    else {
+        if (style == "normal") {
+            system("cls");
+            cout << CurrentPulsarInfo::title << endl;
+        }
+        else if (style == "big") {
+            system("cls");
+            cout << R"P(
   _____       _                
  |  __ \     | |               
  | |__) |   _| |___  __ _ _ __ 
@@ -204,11 +229,11 @@ void PulsarConsoleClear() {
  |_|    \__,_|_|___/\__,_|_|
  
 )P" << endl;
-    }
+        }
 
-    else if (style == "graffity") {
-        system("cls");
-        cout << R"P(
+        else if (style == "graffity") {
+            system("cls");
+            cout << R"P(
 __________      .__                        
 \______   \__ __|  |   ___________ _______ 
  |     ___/  |  \  |  /  ___/\__  \\_  __ \
@@ -216,10 +241,10 @@ __________      .__
  |____|   |____/|____/____  >(____  /__|   
                           \/      \/
 )P" << endl;
-    }
-    else if (style == "epic") {
-        system("cls");
-        cout << R"P(
+        }
+        else if (style == "epic") {
+            system("cls");
+            cout << R"P(
 
  _______           _        _______  _______  _______ 
 (  ____ )|\     /|( \      (  ____ \(  ___  )(  ____ )
@@ -232,15 +257,52 @@ __________      .__
                                                       
                   
 )P" << endl;
-    }
+        }
+        else if (style == "speed") {
+            system("cls");
+            cout << R"P(           
+    ____        __               
+   / __ \__  __/ /________ ______
+  / /_/ / / / / / ___/ __ `/ ___/
+ / ____/ /_/ / (__  ) /_/ / /    
+/_/    \__,_/_/____/\__,_/_/     
+                                 
+                                   
+                  
+)P" << endl;
+        }
+        else if (style == "3d") {
+            system("cls");
+            cout << R"P(           
 
-    else {
-        system("cls");
-        cout << CurrentPulsarInfo::title << endl;
+      ___           ___           ___       ___           ___           ___     
+     /\  \         /\__\         /\__\     /\  \         /\  \         /\  \    
+    /::\  \       /:/  /        /:/  /    /::\  \       /::\  \       /::\  \   
+   /:/\:\  \     /:/  /        /:/  /    /:/\ \  \     /:/\:\  \     /:/\:\  \  
+  /::\~\:\  \   /:/  /  ___   /:/  /    _\:\~\ \  \   /::\~\:\  \   /::\~\:\  \ 
+ /:/\:\ \:\__\ /:/__/  /\__\ /:/__/    /\ \:\ \ \__\ /:/\:\ \:\__\ /:/\:\ \:\__\
+ \/__\:\/:/  / \:\  \ /:/  / \:\  \    \:\ \:\ \/__/ \/__\:\/:/  / \/_|::\/:/  /
+      \::/  /   \:\  /:/  /   \:\  \    \:\ \:\__\        \::/  /     |:|::/  / 
+       \/__/     \:\/:/  /     \:\  \    \:\/:/  /        /:/  /      |:|\/__/  
+                  \::/  /       \:\__\    \::/  /        /:/  /       |:|  |    
+                   \/__/         \/__/     \/__/         \/__/         \|__|    
+                                  
+                  
+)P" << endl;
+        }
+        else {
+            system("cls");
+            cout << CurrentPulsarInfo::title << endl;
+        }
     }
 }
 
-void AccountCommand(string line) {
+int neuro() {
+    string pathToNeuro = "cd " + current_path + "\\SystemPuls\\systemmodules && pulsneuro.exe";
+    system(pathToNeuro.c_str());
+}
+
+int AccountCommand(string line) {
     line.replace(0, 8, "");
     line.erase(0, line.find_first_not_of(' '));
     line.erase(line.find_last_not_of(' ') + 1);
@@ -259,6 +321,10 @@ void AccountCommand(string line) {
             break;
         }
         string newDirecrotyAccount = current_path + "\\accounts\\" + name;
+        if (filesystem::exists(newDirecrotyAccount)) {
+            cout << "Такой аккаунт уже существует" << endl;
+            return 0;
+        }
         filesystem::create_directory(newDirecrotyAccount);
         filesystem::create_directory(newDirecrotyAccount + "\\accountcfg");
         filesystem::create_directory(newDirecrotyAccount + "\\userfiles");
@@ -372,80 +438,240 @@ int configAnalyze(string bildn, string AccountName, string pas) {
     } 
     return 0;
 }
-    
-int pulsarstart(string bildn, string AccountName, string pas) {
+
+int comAnalyze(string line) {
+    ofstream logfile;
+    if (isLog) {
+        logfile.open(current_path + "\\accounts\\" + CurrentPulsarInfo::account + "\\accountcfg\\log.plog", fstream::in | fstream::out | ios::app);
+        logfile << line;
+        logfile << "\n";
+        logfile.close();
+    }
+    if (line.empty()) {
+        return 0;
+    }
+    else if (line == "exit") {
+        return 0101;
+    }
+    else if (line.starts_with("neuro")) {
+        neuro();
+    }
+    else if (line.substr(0, 2) == "fs") {
+        fileCommand(line, current_path, CurrentPulsarInfo::account);
+    }
+    else if (line.substr(0, 4) == "calc") {
+        if (line.length() > 4) {
+            puls_calc(line);
+        }
+        else {
+            cout << "Ошибка: Введите выражение для вычисления (например: calc 2+2)" << endl;
+        }
+    }
+    else if (line == "clear") {
+        PulsarConsoleClear();
+    }
+    else if (line == "pinfo") {
+        CurrentPulsarInfo::ShowInfo();
+    }
+    else if (line.substr(0, 9) == "sysconfig") {
+        puls_sysconfig(line);
+    }
+    else if (line == "help" || line.substr(0, 4) == "help") {
+        show_help();
+    }
+    else if (line == "sumulator_pulsar") {
+        sumulator_pulsar();
+    }
+    else if (line.substr(0, 7) == "account") {
+        AccountCommand(line);
+    }
+    else if (line.substr(0, 12) == "change style") {
+        changeStyle();
+    }
+    else if (line.starts_with("-error")) {
+        cout << "Сообщения об ошибках выключены" << endl;
+        isError = false;
+    }
+    else if (line.starts_with("+error")) {
+        cout << "Сообщения об ошибках включены" << endl;
+        isError = true;
+    }
+    else if (line == "chemdb") {
+        string pathToChemBd = "cd " + current_path + "\\SystemPuls\\systemmodules && chembd.exe";
+        system(pathToChemBd.c_str());
+        PulsarConsoleClear();
+
+    }
+    else if (line.substr(0, 3) == "log") {
+        line.replace(0, 3, "");
+        line.erase(0, line.find_first_not_of(' '));
+        line.erase(line.find_last_not_of(' ') + 1);
+        if (line.starts_with("off")) {
+            if (isLog == false) { 
+                cout << "Логирование команд уже выключено " << endl;
+                return 0; }
+            cout << "Логирование команд выключено " << endl;
+            isLog = false;
+        }
+        else if (line.starts_with("on")) {
+            if (isLog == true) {
+                cout << "Логирование команд уже включено " << endl; 
+                return 0;
+            }
+            cout << "Логирование команд включено " << endl;
+            isLog = true;
+        }
+        else if (line.starts_with("delete")) {
+            string answer;
+            while (true) {
+                cout << "Очистка лога команд - опасна операция. \n Код опасности 1; \n Выполнить операцию? [Y/n] :";
+                cin >> answer;
+                if (answer == "Y") {
+                    logfile.open(current_path + "\\accounts\\" + CurrentPulsarInfo::account + "\\accountcfg\\log.plog", fstream::in | fstream::out | ios::trunc);
+                    logfile << "#pulsar log delete " + CurrentPulsarInfo::getCurrentDateTime();
+                    logfile << "\n";
+                    logfile.close();
+                    cout << "Лог команд очищен" << endl;
+                    break;
+                }
+                else if (answer == "n") {
+                    cout << "Запрет доступа к операции. Отказ пользователя" << endl;
+                    break;
+                }
+                else {
+                    cout << "Неизвестная команда. Введите Y - согласие. n - отказ" << endl;
+                }
+            }
+        }
+
+        else {
+            cout << "Неопознанная log-команда" << endl;
+        }
+
+    }
+    else if (line.starts_with("console.print")) {
+        line.replace(0, 14, "");
+        cout << line << endl;
+    }
+    else {
+        string checkfile;
+        if (line.find(".exe") != string::npos) {
+            checkfile = current_path + "\\modules\\" + line;
+        }
+        else {
+            checkfile = current_path + "\\modules\\" + line + ".exe";
+        }
+
+        if (filesystem::exists(checkfile)) {
+            string cdmodule = "cd " + current_path + "\\modules && " + line;
+            system(cdmodule.c_str());
+        }
+        else {
+            if(isError) cout << "Ошибка: Команда не распознана. Введите 'help' для справки." << endl;
+        }
+    }
+}
+
+int startPulsScript(string line) {
+    string comInFile;
+    if (filesystem::exists(line)) {
+        fstream scrFile;
+        scrFile.open(line, fstream::in | fstream::out | ios::app);
+        if (!scrFile.is_open()) {
+            cout << "Ошибка работы с файлом - " << line << endl;
+            return 1;
+        }
+        while (getline(scrFile, comInFile)) {
+            comInFile.erase(0, comInFile.find_first_not_of(' '));
+            comInFile.erase(comInFile.find_last_not_of(' ') + 1);
+            int code = comAnalyze(comInFile);
+            if (code == 0101) {
+                scrFile.close();
+                return 0101;
+            }
+        }
+        scrFile.close();
+        
+        
+    }
+
+}
+
+int pulsStarterScript() {
+    string comInFile;
+    if (filesystem::exists(current_path + "\\accounts\\" + CurrentPulsarInfo::account + "\\startscript.txt")) {
+        fstream scrsFile;
+        scrsFile.open(current_path + "\\accounts\\" + CurrentPulsarInfo::account + "\\startscript.txt", fstream::in | fstream::out | ios::app);
+        if (!scrsFile.is_open()) {
+            cout << "Ошибка работы с файлом - " << current_path + "\\accounts\\" + CurrentPulsarInfo::account + "\\startscript.txt" << endl;
+            return 1;
+        }
+        while (getline(scrsFile, comInFile)) {
+            comInFile.erase(0, comInFile.find_first_not_of(' '));
+            comInFile.erase(comInFile.find_last_not_of(' ') + 1);
+            int code = comAnalyze(comInFile);
+            if (code == 0101) {
+                scrsFile.close();
+                return 0101;
+            }
+        }
+        scrsFile.close();
+    }
+    else if (filesystem::exists(current_path + "\\accounts\\" + CurrentPulsarInfo::account + "\\startscript.puls")) {
+        fstream scrsFile;
+        scrsFile.open(current_path + "\\accounts\\" + CurrentPulsarInfo::account + "\\startscript.puls", fstream::in | fstream::out | ios::app);
+        if (!scrsFile.is_open()) {
+            cout << "Ошибка работы с файлом - " << current_path + "\\accounts\\" + CurrentPulsarInfo::account + "\\startscript.puls" << endl;
+            return 1;
+        }
+        while (getline(scrsFile, comInFile)) {
+            comInFile.erase(0, comInFile.find_first_not_of(' '));
+            comInFile.erase(comInFile.find_last_not_of(' ') + 1);
+            int code = comAnalyze(comInFile);
+            if (code == 0101) {
+                scrsFile.close();
+                return 0101;
+            }
+        }
+        scrsFile.close();
+    }
+}
+
+int pulsarStart(string bildn, string AccountName, string pas) {
     setlocale(LC_ALL, "Ru");
+    ofstream logfile;
     CurrentPulsarInfo::start_time = clock();
     configAnalyze(bildn, AccountName, pas);
+    logfile.open(current_path + "\\accounts\\" + CurrentPulsarInfo::account + "\\accountcfg\\log.plog", fstream::in | fstream::out | ios::app);
+    logfile << "$startpulsar " + CurrentPulsarInfo::getCurrentDateTime();
+    logfile << "\n";
+    logfile.close();
     string com;
+    int code;
     system("cls");
     PulsarConsoleClear();
+    pulsStarterScript();
     while (true) {
         cout << "$> ";
         getline(cin, com);
         com.erase(0, com.find_first_not_of(' '));
         com.erase(com.find_last_not_of(' ') + 1);
-
-        if (com.empty()) {
-            continue;
-        }
-        else if (com == "exit") {
-            return 0101;
-        }
-        else if (com.substr(0, 2) == "fs") {
-            fileCommand(com, current_path, CurrentPulsarInfo::account);
-        }
-        else if (com.substr(0, 4) == "calc") {
-            if (com.length() > 4) {
-                puls_calc(com);
-            }
-            else {
-                cout << "Ошибка: Введите выражение для вычисления (например: calc 2+2)" << endl;
-            }
-        }
-        else if (com == "clear") {
-            PulsarConsoleClear();
-        }
-        else if (com == "pinfo") {
-            CurrentPulsarInfo::ShowInfo();
-        }
-        else if (com.substr(0, 9) == "sysconfig") {
-            puls_sysconfig(com);
-        }
-        else if (com == "help" || com.substr(0, 4) == "help") {
-            show_help();
-        }
-        else if (com == "sumulator_pulsar") {
-            sumulator_pulsar();
-        }
-        else if (com.substr(0, 7) == "account") {
-            AccountCommand(com);
-        }
-        else if (com.substr(0, 12) == "change style") {
-            changeStyle();
-        }
-        else if (com == "chembd") {
-            string pathToChemBd = "cd " + current_path + "\\SystemPuls\\systemmodules && chembd.exe";
-            system(pathToChemBd.c_str());
-            PulsarConsoleClear();
-
+        if (com.starts_with("script")) {
+            com.replace(0, 6, "");
+            com.erase(0, com.find_first_not_of(' '));
+            com.erase(com.find_last_not_of(' ') + 1);
+            code = startPulsScript(com);
         }
         else {
-            string checkfile;
-            if (com.find(".exe") != string::npos) {
-                checkfile = current_path + "\\modules\\" + com;
-            }
-            else {
-                checkfile = current_path + "\\modules\\" + com + ".exe";
-            }
-
-            if (filesystem::exists(checkfile)) {
-                string cdmodule = "cd " + current_path + "\\modules && " + com;
-                system(cdmodule.c_str());
-            }
-            else {
-                cout << "Ошибка: Команда не распознана. Введите 'help' для справки." << endl;
-            }
+            code = comAnalyze(com);
         }
+        if (code == 0101) {
+            logfile.open(current_path + "\\accounts\\" + CurrentPulsarInfo::account + "\\accountcfg\\log.plog", fstream::in | fstream::out | ios::app);
+            logfile << "$exitpulsar " + CurrentPulsarInfo::getCurrentDateTime();
+            logfile << "\n";
+            logfile.close();
+            return 0101; 
+        }
+       
     }
 }

@@ -1,0 +1,88 @@
+import 'std.sys'
+import 'std.convert'
+import 'std.jvm'
+import 'std.threads'
+import 'sysprint.wt'
+
+// вывод
+window := new Printer()
+os := system.get_info().getOperatingSystem()
+processor := system.get_hal().getProcessor()
+card := system.get_hal().getGraphicsCards().get(0)
+
+// обновление информации о нагрузке процессора
+cpu_load := 0
+ticks := processor.getSystemCpuLoadTicks()
+threads.run(fun() {
+        threads.sleep(1000)
+        cpu_load = system.get_hal().getProcessor().getSystemCpuLoadBetweenTicks(ticks)
+        ticks = system.get_hal().getProcessor().getSystemCpuLoadTicks()
+}, [])
+
+    window.refresh([
+        new Title(
+            '💻 System',
+            [
+                new Label(
+                    'Uptime',
+                    os.getSystemUptime()/60
+                ),
+                new Label(
+                    'User',
+                    system.get_property('user.name')
+                ),
+                new Label(
+                    'Tasks',
+                    os.getProcessCount()
+                ),
+                new Label(
+                    'Arch',
+                    os.getBitness() + '-bit'
+                )
+            ]
+        ),
+        new Title(
+            '🎛 Cpu',
+            [
+                new Label(
+                    'CpuPhysicalCores',
+                    processor.getPhysicalProcessorCount()
+                ),
+                new Label(
+                    'CpuLoad',
+                    convert.to_int(cpu_load * 100.0) + ' %'
+                ),
+                new Label(
+                    'CpuLogicalCores',
+                    processor.getLogicalProcessorCount()
+                ),
+                new Label(
+                    'CpuTemp',
+                    system.get_hal().getSensors().getCpuTemperature() + '°C'
+                )
+            ]
+        ),
+        new Title(
+            '⚙ Gpu',
+            [
+                new Label(
+                    '',
+                    card.getVersionInfo()
+                ),
+                new Label(
+                    'VRam: ',
+                    card.getVRam() / 1024 / 1024 + ' MB'
+                )
+            ]
+        ),
+        new Title(
+            '📥 Ram',
+            [
+                new Label(
+                    'Memory: ',
+                    system.get_hal().getMemory()
+                )
+            ]
+        )
+    ])
+    threads.sleep(1000)

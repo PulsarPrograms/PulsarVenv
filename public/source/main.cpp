@@ -1,7 +1,7 @@
 ﻿#include <iostream>
 #include <string>
 #include <dos.h>
-#include "wp.h"
+#include "winPulsar.h"
 #include <chrono>
 #include <thread>
 #include <fstream>
@@ -28,9 +28,9 @@ void PulsarLogo() {
 
 void CreateAccount() {
         cout << "Введите имя аккаунта: ";
-        getline(cin, name);
+        getline(cin, name); 
         cout << "СПРАВКА - если хотите создать аккаунт без пароля укажите \"none\"" << endl;
-        while (true){
+        while (true) {
             cout << "Введите пароль аккаунта: ";
             getline(cin, password);
             if (password.length() < 4) {
@@ -43,6 +43,10 @@ void CreateAccount() {
         filesystem::create_directory(newDirecrotyAccount);
         filesystem::create_directory(newDirecrotyAccount + "\\accountcfg");
         filesystem::create_directory(newDirecrotyAccount + "\\userfiles");
+        filesystem::create_directory(newDirecrotyAccount + "\\userfiles");
+        ofstream f0;
+        f0.open(newDirecrotyAccount + "\\accountcfg\\log.plog");
+        f0.close();
         ofstream f;
         f.open(newDirecrotyAccount + "\\accountcfg\\password.ppas");
         f << password;
@@ -67,6 +71,7 @@ int LoginInAccount() {
         getline(f, correctPassword);
         if (!f.is_open()) {
             cout << "Такого аккаунта не существует или произшла ошибка" << endl;
+            cin.get();
             return 1;
         }
         f.close();
@@ -106,7 +111,8 @@ int main(){
     curfile.open(pathToMainCfg, fstream::in | fstream::out | fstream::app);
     string buildid;
     if (!curfile.is_open()) { 
-        cout << "Ошибка при работе с файлом maincfg.pcfg" << endl; 
+        cout << "Ошибка при работе с файлом maincfg.pcfg" << endl;
+        cin.get();
     }
     else
     {
@@ -122,6 +128,7 @@ int main(){
         }
             #ifdef _WIN32
                     cout << "Windows система определена\n";
+                    bool isGuest = false;
                     this_thread::sleep_for(std::chrono::milliseconds(300));
                     system("cls");
                     PulsarLogo();
@@ -130,6 +137,11 @@ int main(){
                     for (const auto& entry : filesystem::directory_iterator(accountDirectoryPath)) {
                         if (entry.is_directory()) {
                             string currentAccount = entry.path().filename().string();
+                            if (currentAccount == "guest") {
+                                name = "guest";
+                                password = "guest";
+                                isGuest = true;
+                            }
                             countAccount++;
                         }
                     }
@@ -138,17 +150,17 @@ int main(){
                         CreateAccount();
                     }
                     else {
-                       int check = LoginInAccount();
-                       if (check == 1) {
-                           return 1;
-                       }
+                     int check = LoginInAccount();
+                     if (check == 1) {
+                       return 1;
+                     }
                         
                     }
-                    code = pulsarstart(build_number, name, password);
+                    code = pulsarStart(build_number, name, password);
                     
             #elif __linux__
         cout << "Linux система определена\n" << endl;
-            cout << "Необнаружено версий PulsarVenv для Linux" << endl;
+            cout << "Не обнаружено версий PulsarVenv для Linux" << endl;
         cin.get();
             #endif
     }
