@@ -1,4 +1,5 @@
-﻿#include "winPulsar.h"
+﻿// Неообходимые библиотеки/модули
+#include "winPulsar.h"
 #include <atomic>
 #include <chrono>
 #include <cstdlib>
@@ -13,23 +14,39 @@
 #include <fstream>
 #include <cctype>
 #include "C:\Users\user\source\repos\PulsarVenv\PulsarVenv\pulsFileSystem.h"
+
+//Пространство имен std
 using namespace std;
+
+
+// Глобальные переменные
 string current_path;
 string build_ID;
 string style = "";
 bool isLog = true;
 bool isError = true;
-//TODO  смена имени аккаугта \ создание файлов + работа с ними
-/*Коды возвращаемых ошибок
-0001 - код выхода из системы*/
-
 atomic<bool> timeThreadRunning(true);
 mutex consoleMutex;
 
+// Скелеты (прототипы) функций
 int PulsarConsoleClear();
 int configAnalyze(string bildn, string AccountName, string pas);
 bool isValidHexColor(string s);
+int changeStyle();
+bool isValidHexDigit(char c);
+void puls_calc(string line);
+void puls_sysconfig(string line);
+void show_help();
+int PulsarConsoleClear();
+int neuro();
+int AccountCommand(string line);
+int configAnalyze(string bildn, string AccountName, string pas);
+int comAnalyze(string line);
+int executePulsarScript(string line);
+int pulsStarterScript();
+int writeInLog(string message, bool isTime, bool isTrunc);
 
+// Главный класс информации о пульсаре
 class CurrentPulsarInfo {
 public:
     static string title;
@@ -63,12 +80,61 @@ public:
         cout << "----------------------------------------------" << endl;
     }
 };
+
+// Реализация статический переменных class CurrentPulsarInfo
 string CurrentPulsarInfo::title = "PulsarVenv 0.2.5";
 string CurrentPulsarInfo::platform_version = "Windows";
 string CurrentPulsarInfo::account = "";
 int CurrentPulsarInfo::start_time = 0;
 string CurrentPulsarInfo::bildingid = "";
 string CurrentPulsarInfo::password = "";
+
+
+//Основная функция. Здесь начинается жизнь пульсара
+int pulsarStart(string bildn, string AccountName, string pas) {
+    setlocale(LC_ALL, "Ru");
+    ofstream logfile;
+    CurrentPulsarInfo::start_time = clock();
+    configAnalyze(bildn, AccountName, pas);
+    writeInLog("$startpulsar", true, false);
+    string com;
+    int code;
+    system("cls");
+    PulsarConsoleClear();
+    pulsStarterScript();
+    while (true) {
+        cout << "$> ";
+        getline(cin, com);
+        com.erase(0, com.find_first_not_of(' '));
+        com.erase(com.find_last_not_of(' ') + 1);
+        if (com.starts_with("script")) {
+            com.replace(0, 6, "");
+            com.erase(0, com.find_first_not_of(' '));
+            com.erase(com.find_last_not_of(' ') + 1);
+            code = executePulsarScript(com);
+        }
+        else {
+            code = comAnalyze(com);
+        }
+        if (code == 0101) {
+            writeInLog("$exitpulsar", true, false);
+            return 0101; 
+        }
+       
+    }
+}
+
+
+// Реализация всех функций
+
+int writeInLog(string message, bool isTime, bool isTrunc){
+    ofstream logfile;
+    logfile.open(current_path + "\\accounts\\" + CurrentPulsarInfo::account + "\\accountcfg\\log.plog", fstream::in | fstream::out | ((isTrunc) ? ios::trunc : ios::app));
+    logfile << message;
+    logfile << ((isTime) ? " " + CurrentPulsarInfo::getCurrentDateTime() : "");
+    logfile << "\n";
+    logfile.close();
+}
 
 int changeStyle() {
     string newColor, newStyle;
@@ -110,7 +176,7 @@ int changeStyle() {
     f.close();
     configAnalyze(build_ID, CurrentPulsarInfo::account, CurrentPulsarInfo::password);
     PulsarConsoleClear();
-    
+
 
 }
 
@@ -145,16 +211,6 @@ void puls_sysconfig(string line) {
 
 }
 
-void sumulator_pulsar() {
-    string pathToSumPuls = "cd " + current_path + "\\SystemPuls\\systemmodules && pulsarem.exe";
-    cout << "Внимание скоро начнется эмуляция пульсара.\nВо время эмуляции не нажимайте по консольному окну.\n"
-        << "Если нажали нажмите enter чтобы продолжить эмуляцию" << endl;
-    this_thread::sleep_for(std::chrono::milliseconds(1000));
-    system("cls");
-    system(pathToSumPuls.c_str());
-    PulsarConsoleClear();
-}
-
 void show_help() {
     cout << "PulsarVenv 0.0.1-alpha - Справочник по командам" << endl << endl;
 
@@ -164,7 +220,7 @@ void show_help() {
     cout << "exit               - Выйти из системы" << endl;
     cout << "clear              - Очистить экран консоли" << endl;
     cout << "pinfo              - Показать информацию о Pulsar (версия, время работы и т.д.)" << endl << endl;
-    cout << "сруьви             - Химическая база данных" << endl << endl;
+    cout << "chemdb             - Химическая база данных" << endl << endl;
 
     cout << "Команды работы с системой:" << endl;
     cout << "=========================" << endl;
@@ -386,7 +442,7 @@ int AccountCommand(string line) {
             cout << "Такого аккаунта не существует" << endl;
         }
     }
-    else if(line.starts_with("change password")){
+    else if (line.starts_with("change password")) {
         string check_true_password;
         cout << "Введите пароль от аккаунта: ";
         getline(cin, check_true_password);
@@ -398,7 +454,8 @@ int AccountCommand(string line) {
             f.open(current_path + "\\accounts\\" + CurrentPulsarInfo::account + "\\accountcfg\\password.ppas", ios::trunc);
             if (!f.is_open()) {
                 cout << "Ошибка смены пароля" << endl;
-            } else {
+            }
+            else {
                 f << newPassword;
                 configAnalyze(build_ID, CurrentPulsarInfo::account, newPassword);
             }
@@ -408,7 +465,7 @@ int AccountCommand(string line) {
             cout << "Неверный пароль" << endl;
         }
     }
-    
+
 
 
 }
@@ -435,17 +492,13 @@ int configAnalyze(string bildn, string AccountName, string pas) {
     if (color != "normal") {
         string setColor = "color " + color;
         system(setColor.c_str());
-    } 
+    }
     return 0;
 }
 
 int comAnalyze(string line) {
-    ofstream logfile;
     if (isLog) {
-        logfile.open(current_path + "\\accounts\\" + CurrentPulsarInfo::account + "\\accountcfg\\log.plog", fstream::in | fstream::out | ios::app);
-        logfile << line;
-        logfile << "\n";
-        logfile.close();
+        writeInLog(line, false, false);
     }
     if (line.empty()) {
         return 0;
@@ -479,9 +532,6 @@ int comAnalyze(string line) {
     else if (line == "help" || line.substr(0, 4) == "help") {
         show_help();
     }
-    else if (line == "sumulator_pulsar") {
-        sumulator_pulsar();
-    }
     else if (line.substr(0, 7) == "account") {
         AccountCommand(line);
     }
@@ -507,15 +557,16 @@ int comAnalyze(string line) {
         line.erase(0, line.find_first_not_of(' '));
         line.erase(line.find_last_not_of(' ') + 1);
         if (line.starts_with("off")) {
-            if (isLog == false) { 
+            if (isLog == false) {
                 cout << "Логирование команд уже выключено " << endl;
-                return 0; }
+                return 0;
+            }
             cout << "Логирование команд выключено " << endl;
             isLog = false;
         }
         else if (line.starts_with("on")) {
             if (isLog == true) {
-                cout << "Логирование команд уже включено " << endl; 
+                cout << "Логирование команд уже включено " << endl;
                 return 0;
             }
             cout << "Логирование команд включено " << endl;
@@ -527,10 +578,7 @@ int comAnalyze(string line) {
                 cout << "Очистка лога команд - опасна операция. \n Код опасности 1; \n Выполнить операцию? [Y/n] :";
                 cin >> answer;
                 if (answer == "Y") {
-                    logfile.open(current_path + "\\accounts\\" + CurrentPulsarInfo::account + "\\accountcfg\\log.plog", fstream::in | fstream::out | ios::trunc);
-                    logfile << "#pulsar log delete " + CurrentPulsarInfo::getCurrentDateTime();
-                    logfile << "\n";
-                    logfile.close();
+                    writeInLog("$pulsar log delete", true, false);
                     cout << "Лог команд очищен" << endl;
                     break;
                 }
@@ -567,12 +615,12 @@ int comAnalyze(string line) {
             system(cdmodule.c_str());
         }
         else {
-            if(isError) cout << "Ошибка: Команда не распознана. Введите 'help' для справки." << endl;
+            if (isError) cout << "Ошибка: Команда не распознана. Введите 'help' для справки." << endl;
         }
     }
 }
 
-int startPulsScript(string line) {
+int executePulsarScript(string line) {
     string comInFile;
     if (filesystem::exists(line)) {
         fstream scrFile;
@@ -591,8 +639,8 @@ int startPulsScript(string line) {
             }
         }
         scrFile.close();
-        
-        
+
+
     }
 
 }
@@ -634,44 +682,5 @@ int pulsStarterScript() {
             }
         }
         scrsFile.close();
-    }
-}
-
-int pulsarStart(string bildn, string AccountName, string pas) {
-    setlocale(LC_ALL, "Ru");
-    ofstream logfile;
-    CurrentPulsarInfo::start_time = clock();
-    configAnalyze(bildn, AccountName, pas);
-    logfile.open(current_path + "\\accounts\\" + CurrentPulsarInfo::account + "\\accountcfg\\log.plog", fstream::in | fstream::out | ios::app);
-    logfile << "$startpulsar " + CurrentPulsarInfo::getCurrentDateTime();
-    logfile << "\n";
-    logfile.close();
-    string com;
-    int code;
-    system("cls");
-    PulsarConsoleClear();
-    pulsStarterScript();
-    while (true) {
-        cout << "$> ";
-        getline(cin, com);
-        com.erase(0, com.find_first_not_of(' '));
-        com.erase(com.find_last_not_of(' ') + 1);
-        if (com.starts_with("script")) {
-            com.replace(0, 6, "");
-            com.erase(0, com.find_first_not_of(' '));
-            com.erase(com.find_last_not_of(' ') + 1);
-            code = startPulsScript(com);
-        }
-        else {
-            code = comAnalyze(com);
-        }
-        if (code == 0101) {
-            logfile.open(current_path + "\\accounts\\" + CurrentPulsarInfo::account + "\\accountcfg\\log.plog", fstream::in | fstream::out | ios::app);
-            logfile << "$exitpulsar " + CurrentPulsarInfo::getCurrentDateTime();
-            logfile << "\n";
-            logfile.close();
-            return 0101; 
-        }
-       
     }
 }

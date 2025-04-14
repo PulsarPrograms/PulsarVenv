@@ -5,7 +5,6 @@
 #include <chrono>
 #include <thread>
 #include <fstream>
-#include <Windows.h>;
 #include <filesystem>
 #include <cstdlib>
 
