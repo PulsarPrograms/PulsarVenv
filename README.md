@@ -3,7 +3,7 @@
 
 # About PulsarVenv
 
-PulsarVenv is a simple virtual environment (shell) running on another mother OS.
+PulsarVenv is a simple virtual environment  running on mother OS.
 
 Available systems: Windows
 
