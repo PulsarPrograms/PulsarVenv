@@ -1,7 +1,7 @@
 ﻿#include <iostream>
 #include <string>
 #include <dos.h>
-#include "winPulsar.h"
+#include "C:\Users\user\Desktop\PulsarVenv Main\public\source\WindowsPulsar\winPulsar.h"
 #include <chrono>
 #include <thread>
 #include <fstream>

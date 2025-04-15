@@ -1,5 +1,5 @@
 ﻿// Неообходимые библиотеки/модули
-#include "winPulsar.h"
+#include "C:\Users\user\Desktop\PulsarVenv Main\public\source\WindowsPulsar\winPulsar.h"
 #include <atomic>
 #include <chrono>
 #include <cstdlib>
@@ -15,6 +15,12 @@
 #include <cctype>
 #include "C:\Users\user\source\repos\PulsarVenv\PulsarVenv\pulsFileSystem.h"
 
+// Макросы цветов
+#define CLEAR "\x1b[0m"
+#define RED "\x1b[31m"	
+#define GREEN "\x1b[32m"
+#define BOLD "\x1b[1m"
+
 //Пространство имен std
 using namespace std;
 
@@ -24,7 +30,6 @@ string current_path;
 string build_ID;
 string style = "";
 bool isLog = true;
-bool isError = true;
 atomic<bool> timeThreadRunning(true);
 mutex consoleMutex;
 
@@ -82,7 +87,7 @@ public:
 };
 
 // Реализация статический переменных class CurrentPulsarInfo
-string CurrentPulsarInfo::title = "PulsarVenv 0.2.5";
+string CurrentPulsarInfo::title = "PulsarVenv 0.3.0";
 string CurrentPulsarInfo::platform_version = "Windows";
 string CurrentPulsarInfo::account = "";
 int CurrentPulsarInfo::start_time = 0;
@@ -212,35 +217,7 @@ void puls_sysconfig(string line) {
 }
 
 void show_help() {
-    cout << "PulsarVenv 0.0.1-alpha - Справочник по командам" << endl << endl;
-
-    cout << "Основные команды:" << endl;
-    cout << "=================" << endl;
-    cout << "help               - Показать эту справку" << endl;
-    cout << "exit               - Выйти из системы" << endl;
-    cout << "clear              - Очистить экран консоли" << endl;
-    cout << "pinfo              - Показать информацию о Pulsar (версия, время работы и т.д.)" << endl << endl;
-    cout << "chemdb             - Химическая база данных" << endl << endl;
-
-    cout << "Команды работы с системой:" << endl;
-    cout << "=========================" << endl;
-    cout << "sysconfig          - Показать конфигурацию системы" << endl;
-    cout << "sumulator_pulsar   - Запустить эмуляцию пульсара (требует подтверждения)" << endl << endl;
-
-    cout << "Команды для вычислений:" << endl;
-    cout << "=======================" << endl;
-    cout << "calc <выражение>   - Выполнить математическое вычисление (например: calc 2+2*3)" << endl << endl;
-
-    cout << "Управление аккаунтами:" << endl;
-    cout << "=====================" << endl;
-    cout << "account add        - Создать новый аккаунт" << endl;
-    cout << "account remove     - Удалить существующий аккаунт" << endl;
-    cout << "account swap       - Сменить текущий аккаунт" << endl << endl;
-
-    cout << "Запуск программ:" << endl;
-    cout << "===============" << endl;
-    cout << "<имя_программы>    - Запустить программу из папки modules" << endl;
-    cout << "                    (можно указывать с расширением .exe или без)" << endl;
+    cout << "Справочник по командам - https://github.com/PulsarPrograms/PulsarVenv/wiki" << endl << endl;
 }
 
 int PulsarConsoleClear() {
@@ -538,14 +515,6 @@ int comAnalyze(string line) {
     else if (line.substr(0, 12) == "change style") {
         changeStyle();
     }
-    else if (line.starts_with("-error")) {
-        cout << "Сообщения об ошибках выключены" << endl;
-        isError = false;
-    }
-    else if (line.starts_with("+error")) {
-        cout << "Сообщения об ошибках включены" << endl;
-        isError = true;
-    }
     else if (line == "chemdb") {
         string pathToChemBd = "cd " + current_path + "\\SystemPuls\\systemmodules && chembd.exe";
         system(pathToChemBd.c_str());
@@ -591,6 +560,51 @@ int comAnalyze(string line) {
                 }
             }
         }
+        else if (line.starts_with("write")) {
+            line.erase(0, 5);
+            line.erase(0, line.find_first_not_of(' '));
+
+            if (line.empty() || line[0] != '"') {
+                cout << RED << BOLD << "Ошибка: ожидается '\"' в начале строки" << CLEAR << endl;
+                return 1;
+            }
+
+            string log_message;
+            bool quote_closed = false;
+            int i = 1;
+
+            for (; i < line.length(); i++) {
+                if (line[i] == '"') {
+                    quote_closed = true;
+                    i++;
+                    break;
+                }
+                log_message += line[i];
+            }
+
+            if (!quote_closed) {
+                cout << RED << BOLD << "Ошибка: незакрытый строковый литерал" << CLEAR << endl;
+                return 1;
+            }
+
+            line.erase(0, i);
+            line.erase(0, line.find_first_not_of(' '));
+
+            bool add_time = false;
+            if (line.starts_with("+time")) {
+                add_time = true;
+                line.erase(0, 5);
+                line.erase(0, line.find_first_not_of(' '));
+            }
+
+            for (char c : line) {
+                if (!isspace(c)) {
+                    cout << RED << BOLD << "Ошибка: неожиданные символы после команды: '" << c << "'" << CLEAR << endl;
+                    return 1;
+                }
+            }
+            writeInLog(log_message, add_time, false);
+        }
 
         else {
             cout << "Неопознанная log-команда" << endl;
@@ -615,7 +629,7 @@ int comAnalyze(string line) {
             system(cdmodule.c_str());
         }
         else {
-            if (isError) cout << "Ошибка: Команда не распознана. Введите 'help' для справки." << endl;
+           cout << RED  << "Ошибка: Команда не распознана. Введите 'help' для справки." << CLEAR << endl;
         }
     }
 }
@@ -651,7 +665,7 @@ int pulsStarterScript() {
         fstream scrsFile;
         scrsFile.open(current_path + "\\accounts\\" + CurrentPulsarInfo::account + "\\startscript.txt", fstream::in | fstream::out | ios::app);
         if (!scrsFile.is_open()) {
-            cout << "Ошибка работы с файлом - " << current_path + "\\accounts\\" + CurrentPulsarInfo::account + "\\startscript.txt" << endl;
+            cout << RED <<"Ошибка работы с файлом - " << current_path + "\\accounts\\" + CurrentPulsarInfo::account + "\\startscript.txt" << CLEAR << endl;
             return 1;
         }
         while (getline(scrsFile, comInFile)) {
@@ -669,7 +683,7 @@ int pulsStarterScript() {
         fstream scrsFile;
         scrsFile.open(current_path + "\\accounts\\" + CurrentPulsarInfo::account + "\\startscript.puls", fstream::in | fstream::out | ios::app);
         if (!scrsFile.is_open()) {
-            cout << "Ошибка работы с файлом - " << current_path + "\\accounts\\" + CurrentPulsarInfo::account + "\\startscript.puls" << endl;
+            cout << RED <<"Ошибка работы с файлом - " << current_path + "\\accounts\\" + CurrentPulsarInfo::account + "\\startscript.puls" << CLEAR << endl;
             return 1;
         }
         while (getline(scrsFile, comInFile)) {
