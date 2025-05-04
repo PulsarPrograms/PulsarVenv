@@ -45,3 +45,4 @@ void PulsarProfileManager::login_profile() {
     cout << "Введите имя профиля: " << endl;
     /*В будущем добавлю логин*/
 }
+//.

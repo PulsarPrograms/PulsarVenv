@@ -18,7 +18,7 @@ PulsarStartup::PulsarStartup() {
 std::string PulsarStartup::get_version() {
     return  PulsarStartup::version;
 }
-
+//.
 bool PulsarStartup::check_have_directories() {
     bool is_have_directories = true;
     string directories[]{PulsarStartup::current_path + "\\system", PulsarStartup::current_path + "\\system\\profiles"};

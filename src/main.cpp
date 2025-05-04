@@ -16,7 +16,7 @@
 
 
 using namespace std;
-/* Чтобы не раскидывать мини функции по аддонам добавил их в main */
+/* Чтобы не раскидывать мини функции по аддонам добавил их в main. */
 void normalize_locale() {
 #ifdef _WIN32
     SetConsoleOutputCP(CP_UTF8);
