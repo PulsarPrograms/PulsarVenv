@@ -13,7 +13,7 @@ PulsarVenv  is a special virtual environment whose functionality is separated fr
 
 ## Documentation
 
-PulsarVenv wiki - https://github.com/PulsarPrograms/PulsarVenv/wiki
+[PulsarVenv wiki](https://github.com/PulsarPrograms/PulsarVenv/wiki)
 
 ## Distribute
 
