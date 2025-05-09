@@ -1,0 +1,4 @@
+locale = 'standard_locale.toml'
+name = 'zero'
+path = 'C:\Users\user\Desktop\PulsarVenv'
+showWarnings = true

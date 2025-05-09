@@ -1,4 +1,3 @@
-
 #include "PulsarStartup.h"
 
 #include <clocale>
@@ -24,10 +23,11 @@ bool PulsarStartup::check_have_directories() {
     string directories[]{PulsarStartup::current_path + "\\system", PulsarStartup::current_path + "\\system\\profiles"};
     for (auto directory : directories) {
         if (!(filesystem::exists(directory))) {
-            cout << "PulsarStartup error:  Отстутвует системная директория -- " << directory << endl;
+            cout << PulsarStartup::pulsar_locale["not_found_directory"].value_or("PulsarStartup error: The system directory is missing -- ")  << directory << endl;
             is_have_directories = false;
         }
     }
+    if (is_have_directories) PulsarStartup::pulsar_locale = toml::parse_file(PulsarStartup::current_path + "\\system\\locale\\standard_locale.toml");
     return is_have_directories;
 }
 

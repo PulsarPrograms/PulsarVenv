@@ -12,6 +12,7 @@ string PulsarCurrentProfile::name;
 bool PulsarCurrentProfile::showWarnings = true;
 
 
+
 PulsarProfileManager::PulsarProfileManager() {}
 
 void PulsarProfileManager::setup_accounts() {
@@ -24,30 +25,33 @@ void PulsarProfileManager::setup_accounts() {
 }
 
 toml::table PulsarProfileManager::setup_standart_settings() {
-    toml::table config {{"showWarnings" , true}, {"name" , "none"}};
+    toml::table config {{"showWarnings" , true}, {"name" , "none"}, {"locale" , "standard_locale.toml"}, {"path", PulsarCore::current_path}};
     return config;
 }
 
 void PulsarProfileManager::register_profile() {
     string name;
-    cout << "Введите имя профиля: " << endl;
-    getline(cin, name);
+    cout << "Creating a profile operation" << endl;
+    cout << PulsarCore::pulsar_locale["enter_name_profile"].value_or("Enter the profile name: "); getline(cin, name);
     string newProfile = PulsarCore::current_path + "\\system\\profiles\\" + name;
     filesystem::create_directory(newProfile);
     filesystem::create_directory(newProfile + "\\settings");
     toml::table config = setup_standart_settings();
     config.insert_or_assign("name", name);
+    PulsarCurrentProfile::name = config["name"].value_or(name);
+    PulsarCurrentProfile::showWarnings = config["showWarnings"].value_or(true);
     std::ofstream file(newProfile + "\\settings" + "\\config.toml");
     file << config;
+    file.close();
 }
 
 void PulsarProfileManager::login_profile() {
     string name;
-    cout << "Введите имя профиля: " << endl;
+    cout << PulsarCore::pulsar_locale["enter_name_profile"].value_or("Enter the profile name: "); getline(cin, name);
     for (const auto& account : account_names) {
         if (account == name) {
             string path_to_acc = PulsarCore::current_path + "\\system\\profiles\\" + name;
-            auto config = toml::parse_file(path_to_acc + "\\settings\\config.toml");
+            toml::table config = toml::parse_file(path_to_acc + "\\settings\\config.toml");
             PulsarCurrentProfile::name = config["name"].value_or(name);
             PulsarCurrentProfile::showWarnings = config["showWarnings"].value_or(true);
         }

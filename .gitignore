@@ -1,0 +1,29 @@
+# Папки сборки CMake
+cmake-build-debug/
+cmake-build-release/
+build/
+
+# Файлы и папки IDE
+.idea/
+.vscode/
+*.user
+*.suo
+*.ncb
+*.sdf
+
+# Исполняемые файлы
+*.exe
+*.out
+*.app
+
+# Файлы CMake
+CMakeCache.txt
+CMakeFiles/
+cmake_install.cmake
+Makefile
+
+# Логи и временные файлы
+*.log
+*.tmp
+*.swp
+*~
