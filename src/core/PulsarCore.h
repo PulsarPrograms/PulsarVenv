@@ -13,7 +13,7 @@ public:
 
     void set_platform(const std::string &platform);
     void set_version(const std::string &version);
-
+    static int account_update();
     // основной функционал
 
     /**

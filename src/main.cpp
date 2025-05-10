@@ -25,13 +25,13 @@ void normalize_locale() {
     setlocale(LC_ALL, ".UTF8");
 }
 
-bool isRunningUnderWine() {
+bool is_running_under_wine() {
     const char* wineLoader = std::getenv("WINELOADER");
     const char* winePrefix = std::getenv("WINEPREFIX");
     return (wineLoader != nullptr || winePrefix != nullptr);
 }
 
-bool isRunningOnLinux() {
+bool is_running_on_linux() {
 #ifdef __linux__
     return true;
 #else
@@ -39,7 +39,7 @@ bool isRunningOnLinux() {
 #endif
 }
 
-bool isRunningOnWindows() {
+bool is_running_on_windows() {
 #ifdef _WIN32
     return true;
 #else
@@ -47,7 +47,7 @@ bool isRunningOnWindows() {
 #endif
 }
 
-bool isRunningOnMacOS() {
+bool is_running_on_mac_os() {
 #ifdef __APPLE__
     return true;
 #else
@@ -56,7 +56,7 @@ bool isRunningOnMacOS() {
 }
 
 string get_current_os() {
-    if (isRunningUnderWine()) {
+    if (is_running_under_wine()) {
         return "Wine";
     }
     else  {
@@ -72,8 +72,8 @@ string get_current_os() {
     }
 }
 
-void clearScreen() {
-    (isRunningOnWindows()) ? system("cls") : system("clear");
+void clear_screen() {
+    (is_running_on_windows()) ? system("cls") : system("clear");
 }
 
 /* Функция main тоже относится к PulsarStartup, выполняет свызь всех компонентов*/

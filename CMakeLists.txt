@@ -8,6 +8,9 @@ add_executable(PulsarVenv
         src/startup/PulsarStartup.cpp
         src/profile/PulsarProfileManager.cpp
         src/core/PulsarCore.cpp
+        src/itils/split/split.cpp
+        src/commandHandler/CommandHandler.cpp
+
 )
 
 target_include_directories(PulsarVenv PRIVATE
@@ -15,6 +18,8 @@ target_include_directories(PulsarVenv PRIVATE
         src/profile
         src/core
         src/include
+        src/itils/split
+        src/commandHandler/
 
 )
 

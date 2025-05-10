@@ -3,6 +3,8 @@
 #include "filesystem"
 #include <../include/toml++/toml.h>
 #include <../profile/PulsarProfileManager.h>
+#include "../commandHandler/CommandHandler.h"
+#include "../itils/clearScreen/clear_screen.h"
 
 using namespace std;
 
@@ -17,18 +19,23 @@ void PulsarCore::set_version(const std::string &version) {
     this->version = version;
 }
 
-int account_update() {
+int PulsarCore::account_update() {
     toml::table config = toml::parse_file(PulsarCore::current_path + "\\system\\profiles\\" + PulsarCurrentProfile::name + "\\settings\\config.toml");
     PulsarCore::pulsar_locale = toml::parse_file(PulsarCore::current_path + "\\system\\locale\\" + config["locale"].value_or("standard_locale.toml"));
+    PulsarCurrentProfile::name = config["name"].value_or(PulsarCurrentProfile::name);
+    PulsarCurrentProfile::showWarnings = config["showWarnings"].value_or(PulsarCurrentProfile::showWarnings);
+
     return 0;
 }
 
 int PulsarCore::start() {
+    clear_screen();
     string command;
     account_update();
     while (true) {
         cout << "$> "; getline(cin, command);
-        if (command == "exit") {return 1;}
+        CommandHandler::execute(command);
+
     }
 return 0;
 }
