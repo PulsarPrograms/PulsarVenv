@@ -23,7 +23,7 @@ bool PulsarStartup::check_have_directories() {
     string directories[]{PulsarStartup::current_path + "\\system", PulsarStartup::current_path + "\\system\\profiles"};
     for (auto directory : directories) {
         if (!(filesystem::exists(directory))) {
-            cout << PulsarStartup::pulsar_locale["not_found_directory"].value_or("PulsarStartup error: The system directory is missing -- ")  << directory << endl;
+            cerr << PulsarStartup::pulsar_locale["not_found_directory"].value_or("PulsarStartup error: The system directory is missing -- ")  << directory << endl;
             is_have_directories = false;
         }
     }

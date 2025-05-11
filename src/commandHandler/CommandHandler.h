@@ -10,6 +10,7 @@ public:
 
 
 class CommandPulsar {
+    void execute(const std::vector<std::string> &command);
 
 };
 

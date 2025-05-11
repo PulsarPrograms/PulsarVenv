@@ -48,3 +48,9 @@ void CommandConfig::execute(const vector<string> &command) {
         }
     }
 }
+
+void CommandPulsar::execute(const std::vector<std::string> &command) {
+    if (command[1] == "info") {
+
+    }
+}

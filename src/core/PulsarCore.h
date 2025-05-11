@@ -5,14 +5,13 @@
 
 class PulsarCore {
     std::string version;
-    std::string platform;
 
 public:
     static std::string current_path;
     static toml::table pulsar_locale;
+    static std::string platform;
 
-    void set_platform(const std::string &platform);
-    void set_version(const std::string &version);
+
     static int account_update();
     // основной функционал
 

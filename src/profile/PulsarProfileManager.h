@@ -2,7 +2,10 @@
 #include <string>
 #include <vector>
 #include <../include//toml++/toml.hpp>
-//.
+#include <../core/PulsarCore.h>
+
+
+
 class PulsarProfileManager {
 private:
     toml::table setup_standart_settings();
@@ -19,4 +22,5 @@ class PulsarCurrentProfile {
     public:
     static std::string name;
     static bool showWarnings;
+    static void show_info();
 };

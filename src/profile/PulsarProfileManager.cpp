@@ -58,3 +58,7 @@ void PulsarProfileManager::login_profile() {
     }
 
 }
+void PulsarCurrentProfile::show_info() {
+    cout << PulsarCore::pulsar_locale["profile_name"].value_or("ERROR: [LOCALE ERROR]") << "   " << PulsarCurrentProfile::name << endl;
+    cout << PulsarCore::pulsar_locale["current_os"].value_or("ERROR: [LOCALE ERROR]") << "  " << PulsarCore::platform << endl;
+}
