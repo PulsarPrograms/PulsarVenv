@@ -19,7 +19,7 @@ PulsarVenv  is a special virtual environment whose functionality is separated fr
 
 - [Telegram channel](https://t.me/pulsarvenv)
 - [Telegram community](https://t.me/chatpulsar)
-- [Project branch in the pro programming group](https://t.me/c/2554956037/305)
+- [Project branch in the pro programming group](https://t.me/koding_ru/305)
 
 
 ## Developers
