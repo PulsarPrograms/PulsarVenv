@@ -1,2 +1,4 @@
 enter_name_profile = "Enter the profile name: "
 not_found_directory = "PulsarStartup error: The system directory is missing -- "
+file_not_exixts = "No system file or directory found!"
+invalid_value = "Invalid value!"

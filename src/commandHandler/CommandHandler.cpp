@@ -26,6 +26,9 @@ void CommandHandler::execute(string command) {
 void CommandSetrule::execute(const vector<string> &command) {
     if (command[1] == "showWarnings") {
         toml::table conf = toml::parse_file(PulsarCore::current_path + "\\system\\profiles\\" + PulsarCurrentProfile::name + "\\settings\\config.toml" );
+        if (!(command[2] == "true" || command[2] == "false")) {
+            cerr << PulsarCore::pulsar_locale["invalid_value"].value_or("ERROR: [LOCALE ERROR] ") << endl;
+        }
         conf.insert_or_assign("showWarnings", command[2] == "true");
         ofstream file(PulsarCore::current_path + "\\system\\profiles\\" + PulsarCurrentProfile::name + "\\settings\\config.toml");
         file << conf;

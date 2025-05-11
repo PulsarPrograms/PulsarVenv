@@ -78,24 +78,28 @@ void clear_screen() {
 
 /* Функция main тоже относится к PulsarStartup, выполняет свызь всех компонентов*/
 int main() {
-    // Устанавливаем локаль
-    normalize_locale();
-    // Инициализация всех нужных компонентов
-    PulsarStartup pulsar;
-    if (!pulsar.check_have_directories()){ cin.get(); return 1; }
+    try {
+        // Устанавливаем локаль
+        normalize_locale();
+        // Инициализация всех нужных компонентов
+        PulsarStartup pulsar;
+        if (!pulsar.check_have_directories()){ cin.get(); return 1; }
 
-    // Самый главный компонент - ядро. Другие компоненты будут использовать функционал ядра
-    PulsarCore core;
-    PulsarCore::current_path = pulsar.current_path; // Путь до папки с пульсаром
-    PulsarCore::pulsar_locale = pulsar.pulsar_locale; // Сам томл файл локализации
-    core.set_platform(get_current_os()); // Платформа
-    core.set_version(pulsar.get_version()); // Версия
+        // Самый главный компонент - ядро. Другие компоненты будут использовать функционал ядра
+        PulsarCore core;
+        PulsarCore::current_path = pulsar.current_path; // Путь до папки с пульсаром
+        PulsarCore::pulsar_locale = pulsar.pulsar_locale; // Сам томл файл локализации
+        core.set_platform(get_current_os()); // Платформа
+        core.set_version(pulsar.get_version()); // Версия
 
 
-    PulsarProfileManager manager; // Менеджер профилей
-    manager.setup_accounts(); // Устанавливаем имена аккаунтов
-    (manager.account_names.size() == 0) ? manager.register_profile() : manager.login_profile();
-    core.start();
+        PulsarProfileManager manager; // Менеджер профилей
+        manager.setup_accounts(); // Устанавливаем имена аккаунтов
+        (manager.account_names.size() == 0) ? manager.register_profile() : manager.login_profile();
+        core.start();
+    } catch (string error) {
+        cout << "PulsarError: " <<  error << endl;
+    }
     return 0;
 
 }

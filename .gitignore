@@ -2,6 +2,7 @@
 cmake-build-debug/
 cmake-build-release/
 build/
+system/profiles/zero
 
 # Файлы и папки IDE
 .idea/

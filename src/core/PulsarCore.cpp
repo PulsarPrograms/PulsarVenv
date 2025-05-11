@@ -20,7 +20,13 @@ void PulsarCore::set_version(const std::string &version) {
 }
 
 int PulsarCore::account_update() {
+    if (!(filesystem::exists(PulsarCore::current_path + "\\system\\profiles\\" + PulsarCurrentProfile::name + "\\settings\\config.toml"))) {
+        cerr << PulsarCore::pulsar_locale["file_not_exixts"].value_or("ERROR: [LOCALE ERROR] ")<< endl;
+    }
     toml::table config = toml::parse_file(PulsarCore::current_path + "\\system\\profiles\\" + PulsarCurrentProfile::name + "\\settings\\config.toml");
+    if (!(filesystem::exists(PulsarCore::current_path + "\\system\\locale\\" + config["locale"].value_or("standard_locale.toml")))) {
+        cerr << PulsarCore::pulsar_locale["file_not_exixts"].value_or("ERROR: [LOCALE ERROR] ")<< endl;
+    }
     PulsarCore::pulsar_locale = toml::parse_file(PulsarCore::current_path + "\\system\\locale\\" + config["locale"].value_or("standard_locale.toml"));
     PulsarCurrentProfile::name = config["name"].value_or(PulsarCurrentProfile::name);
     PulsarCurrentProfile::showWarnings = config["showWarnings"].value_or(PulsarCurrentProfile::showWarnings);
