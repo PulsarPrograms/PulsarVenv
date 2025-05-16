@@ -29,10 +29,7 @@ toml::table PulsarProfileManager::setup_standart_settings() {
     return config;
 }
 
-void PulsarProfileManager::register_profile() {
-    string name;
-    cout << "Creating a profile operation" << endl;
-    cout << PulsarCore::pulsar_locale["enter_name_profile"].value_or("Enter the profile name: "); getline(cin, name);
+void PulsarProfileManager::register_profile(string name) {
     string newProfile = PulsarCore::current_path + "\\system\\profiles\\" + name;
     filesystem::create_directory(newProfile);
     filesystem::create_directory(newProfile + "\\settings");
@@ -45,15 +42,16 @@ void PulsarProfileManager::register_profile() {
     file.close();
 }
 
-void PulsarProfileManager::login_profile() {
-    string name;
-    cout << PulsarCore::pulsar_locale["enter_name_profile"].value_or("Enter the profile name: "); getline(cin, name);
+void PulsarProfileManager::login_profile(string name) {
     for (const auto& account : account_names) {
         if (account == name) {
             string path_to_acc = PulsarCore::current_path + "\\system\\profiles\\" + name;
             toml::table config = toml::parse_file(path_to_acc + "\\settings\\config.toml");
             PulsarCurrentProfile::name = config["name"].value_or(name);
             PulsarCurrentProfile::showWarnings = config["showWarnings"].value_or(true);
+        }
+        else {
+            cerr << PulsarCore::pulsar_locale["Профиль не найден"].value_or("ERROR: [LOCALE ERROR]") << endl;
         }
     }
 

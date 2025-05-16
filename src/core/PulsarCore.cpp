@@ -10,14 +10,8 @@ using namespace std;
 
 string PulsarCore::current_path = "";
 toml::table PulsarCore::pulsar_locale;
-
-void PulsarCore::set_platform(const std::string &platform) {
-    this->platform = platform;
-}
-
-void PulsarCore::set_version(const std::string &version) {
-    this->version = version;
-}
+bool PulsarCore::is_run_terminal = false;
+vector<string> PulsarCore::run_terminal_command = {};
 
 int PulsarCore::account_update() {
     if (!(filesystem::exists(PulsarCore::current_path + "\\system\\profiles\\" + PulsarCurrentProfile::name + "\\settings\\config.toml"))) {

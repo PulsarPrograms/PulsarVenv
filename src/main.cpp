@@ -77,7 +77,7 @@ void clear_screen() {
 }
 
 /* Функция main тоже относится к PulsarStartup, выполняет свызь всех компонентов*/
-int main() {
+int main(int argc, char* argv[]) {
     try {
         // Устанавливаем локаль
         normalize_locale();
@@ -89,14 +89,32 @@ int main() {
         PulsarCore core;
         PulsarCore::current_path = pulsar.current_path; // Путь до папки с пульсаром
         PulsarCore::pulsar_locale = pulsar.pulsar_locale; // Сам томл файл локализации
-        core.set_platform(get_current_os()); // Платформа
-        core.set_version(pulsar.get_version()); // Версия
+        PulsarCore::platform = get_current_os(); // Платформа
+        PulsarCore::version = pulsar.get_version(); // Версия
 
 
         PulsarProfileManager manager; // Менеджер профилей
         manager.setup_accounts(); // Устанавливаем имена аккаунтов
-        (manager.account_names.size() == 0) ? manager.register_profile() : manager.login_profile();
-        core.start();
+        if (argc > 3) {
+            PulsarCore::is_run_terminal = true;
+            for (int i = 1; i < argc; ++i) {
+                // Заглушка. TODO: добавить функцию перебора аргументов, если аргумент является ключевым (вход в аккаунт) то выполнять, потом как все выполнять через метод команд хандлера
+            }
+        } else {
+
+            if (manager.account_names.size() == 0) {
+                string name;
+                cout << "Creating a profile operation" << endl;
+                cout << PulsarCore::pulsar_locale["enter_name_profile"].value_or("Enter the profile name: "); getline(cin, name);
+                manager.register_profile(name);
+            }
+            else {
+                string name;
+                cout << PulsarCore::pulsar_locale["enter_name_profile"].value_or("Enter the profile name: "); getline(cin, name);
+                manager.login_profile(name);
+            }
+            core.start();
+        }
     } catch (string error) {
         cout << "PulsarError: " <<  error << endl;
     }

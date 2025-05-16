@@ -4,12 +4,14 @@
 #include <../include/toml++/toml.h>
 
 class PulsarCore {
-    std::string version;
 
 public:
     static std::string current_path;
     static toml::table pulsar_locale;
     static std::string platform;
+    static std::string version;
+    static bool is_run_terminal;
+    static std::vector<std::string> run_terminal_command;
 
 
     static int account_update();
