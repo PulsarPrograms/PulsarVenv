@@ -24,8 +24,8 @@ PulsarVenv  is a special virtual environment whose functionality is separated fr
 
 ## Developers
 
-- Author : [oneon](https://github.com/zeroqxq)
-- Site developer : [neexzi](https://github.com/Neexzi)
+- Author : [zeroqxq](https://github.com/zeroqxq)
+- Site developer & team leader & developer : [oneon](https://github.com/Neexzi)
 - Developer & beta-tester [user (Mutarov) ](https://github.com/Mutarov)
 
 ## License
