@@ -5,6 +5,7 @@
 #include <string>
 #include <fstream>
 #include <../include/toml++/toml.hpp>
+#include <../utils/other_utils/other_utils.h>
 
 using namespace std;
 
@@ -57,6 +58,11 @@ void PulsarProfileManager::login_profile(string name) {
 
 }
 void PulsarCurrentProfile::show_info() {
+    unsigned int point_time = clock();
     cout << PulsarCore::pulsar_locale["profile_name"].value_or("ERROR: [LOCALE ERROR]") << "   " << PulsarCurrentProfile::name << endl;
     cout << PulsarCore::pulsar_locale["current_os"].value_or("ERROR: [LOCALE ERROR]") << "  " << PulsarCore::platform << endl;
+    cout << PulsarCore::pulsar_locale["current_version"].value_or("ERROR: [LOCALE ERROR]") << "   " << PulsarCore::version << endl;
+    cout << PulsarCore::pulsar_locale["current_time"].value_or("ERROR: [LOCALE ERROR]") << "   " << getCurrentDateTime() <<endl;
+    cout << PulsarCore::pulsar_locale["work_time"].value_or("ERROR: [LOCALE ERROR]") << "   " << (point_time - PulsarCore::start_time) / 1000 << " sec" << endl;
+    cout << PulsarCore::pulsar_locale["start_time"].value_or("ERROR: [LOCALE ERROR]") << "   " << PulsarCore::launch_time << endl;
 }

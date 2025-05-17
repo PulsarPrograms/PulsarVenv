@@ -10,8 +10,8 @@ public:
     static toml::table pulsar_locale;
     static std::string platform;
     static std::string version;
-    static bool is_run_terminal;
-    static std::vector<std::string> run_terminal_command;
+    static int start_time;
+    static std::string launch_time;
 
 
     static int account_update();

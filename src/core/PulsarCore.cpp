@@ -4,14 +4,16 @@
 #include <../include/toml++/toml.h>
 #include <../profile/PulsarProfileManager.h>
 #include "../commandHandler/CommandHandler.h"
-#include "../itils/clearScreen/clear_screen.h"
+#include "../utils/clearScreen/clear_screen.h"
 
 using namespace std;
 
 string PulsarCore::current_path = "";
 toml::table PulsarCore::pulsar_locale;
-bool PulsarCore::is_run_terminal = false;
-vector<string> PulsarCore::run_terminal_command = {};
+string PulsarCore::version = "";
+string PulsarCore::platform = "";
+int PulsarCore::start_time = 0;
+string PulsarCore::launch_time = "";
 
 int PulsarCore::account_update() {
     if (!(filesystem::exists(PulsarCore::current_path + "\\system\\profiles\\" + PulsarCurrentProfile::name + "\\settings\\config.toml"))) {

@@ -4,13 +4,16 @@
 #include <iostream>
 #include <string>
 #include <filesystem>
+#include <..//other_utils/other_utils.h>
 
 
 using namespace std;
 
 PulsarStartup::PulsarStartup() {
+    PulsarStartup::start_time = clock();
     PulsarStartup::current_path = filesystem::current_path().string();
     PulsarStartup::version = "1.0.0";
+    PulsarStartup::launch_time = getCurrentDateTime();
 }
 
 

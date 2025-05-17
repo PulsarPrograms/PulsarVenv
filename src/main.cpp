@@ -12,6 +12,7 @@
 #include "startup/PulsarStartup.h"
 #include "core/PulsarCore.h"
 #include "profile/PulsarProfileManager.h"
+#include "../commandHandler/CommandHandler.h"
 
 
 
@@ -72,9 +73,7 @@ string get_current_os() {
     }
 }
 
-void clear_screen() {
-    (is_running_on_windows()) ? system("cls") : system("clear");
-}
+
 
 /* Функция main тоже относится к PulsarStartup, выполняет свызь всех компонентов*/
 int main(int argc, char* argv[]) {
@@ -87,6 +86,8 @@ int main(int argc, char* argv[]) {
 
         // Самый главный компонент - ядро. Другие компоненты будут использовать функционал ядра
         PulsarCore core;
+        PulsarCore::launch_time = pulsar.launch_time;
+        PulsarCore::start_time = pulsar.start_time;
         PulsarCore::current_path = pulsar.current_path; // Путь до папки с пульсаром
         PulsarCore::pulsar_locale = pulsar.pulsar_locale; // Сам томл файл локализации
         PulsarCore::platform = get_current_os(); // Платформа
@@ -95,22 +96,42 @@ int main(int argc, char* argv[]) {
 
         PulsarProfileManager manager; // Менеджер профилей
         manager.setup_accounts(); // Устанавливаем имена аккаунтов
-        if (argc > 3) {
-            PulsarCore::is_run_terminal = true;
+        if (argc > 2) {
+            bool register_or_login = false;
             for (int i = 1; i < argc; ++i) {
-                // Заглушка. TODO: добавить функцию перебора аргументов, если аргумент является ключевым (вход в аккаунт) то выполнять, потом как все выполнять через метод команд хандлера
+                string arg = argv[i];
+                if (arg == "-l" && i + 1 < argc) {
+                    manager.login_profile(argv[i + 1]);
+                    i++;
+                    register_or_login = true;
+                }
+                else if (arg == "-r" && i + 1 < argc) {
+                    manager.register_profile(argv[i + 1]);
+                    i++;
+                    register_or_login = true;
+                }
+                else if (arg == "-c" && i + 1 < argc) {
+                    if (!(register_or_login)) {
+                        cerr << "Register or login in to your profile before using" << endl;
+                    }
+                    for (int j = i + 1; j < argc; ++j) {
+                        CommandHandler::execute(argv[j]);
+                    }
+                    break;
+                }
             }
+
         } else {
 
             if (manager.account_names.size() == 0) {
                 string name;
                 cout << "Creating a profile operation" << endl;
-                cout << PulsarCore::pulsar_locale["enter_name_profile"].value_or("Enter the profile name: "); getline(cin, name);
+                cout << PulsarCore::pulsar_locale["enter_name_profile"].value_or("Enter the profile name: ")<< ": "; getline(cin, name);
                 manager.register_profile(name);
             }
             else {
                 string name;
-                cout << PulsarCore::pulsar_locale["enter_name_profile"].value_or("Enter the profile name: "); getline(cin, name);
+                cout << PulsarCore::pulsar_locale["enter_name_profile"].value_or("Enter the profile name: ") << ": "; getline(cin, name);
                 manager.login_profile(name);
             }
             core.start();

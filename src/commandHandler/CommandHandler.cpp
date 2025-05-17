@@ -1,7 +1,7 @@
 #include "CommandHandler.h"
 
 #include <iostream>
-#include <../itils/split/split.h>
+#include <../utils/split/split.h>
 #include <string>
 #include <toml++/toml.h>
 #include "../profile/PulsarProfileManager.h"
@@ -11,32 +11,48 @@
 using namespace std;
 
 void CommandHandler::execute(string command) {
-    vector<string> command_split = split(command, " ");
-    if (command_split[0] == "pulsar") {}
-    else if (command_split[0] == "setrule") {
-        CommandSetrule command_setrule;
-        command_setrule.execute(command_split);
+    string command_without_quotes = remove_quotes(command);
+    vector<string> command_split = split(command_without_quotes, " ");
+    if (command_split.size() >=2 ) {
+        if (command_split[0] == "pulsar") {
+            CommandPulsar pulsar_com;
+            pulsar_com.execute(command_split);
+        }
+        else if (command_split[0] == "setrule") {
+            CommandSetrule command_setrule;
+            command_setrule.execute(command_split);
+        }
+        else if (command_split[0] == "config") {
+            CommandConfig command_config;
+            command_config.execute(command_split);
+        }
     }
-    else if (command_split[0] == "config") {
-        CommandConfig command_config;
-        command_config.execute(command_split);
+    else {
+        cerr << PulsarCore::pulsar_locale["invalid_value"].value_or("ERROR: [LOCALE ERROR] ") << endl;
     }
 }
 
 void CommandSetrule::execute(const vector<string> &command) {
-    if (command[1] == "showWarnings") {
-        toml::table conf = toml::parse_file(PulsarCore::current_path + "\\system\\profiles\\" + PulsarCurrentProfile::name + "\\settings\\config.toml" );
-        if (!(command[2] == "true" || command[2] == "false")) {
-            cerr << PulsarCore::pulsar_locale["invalid_value"].value_or("ERROR: [LOCALE ERROR] ") << endl;
+        if (command[1] == "showWarnings") {
+            toml::table conf = toml::parse_file(PulsarCore::current_path + "\\system\\profiles\\" + PulsarCurrentProfile::name + "\\settings\\config.toml" );
+            if (!(command[2] == "true" || command[2] == "false")) {
+                cerr << PulsarCore::pulsar_locale["invalid_value"].value_or("ERROR: [LOCALE ERROR] ") << endl;
+            }
+            conf.insert_or_assign("showWarnings", command[2] == "true");
+            ofstream file(PulsarCore::current_path + "\\system\\profiles\\" + PulsarCurrentProfile::name + "\\settings\\config.toml");
+            file << conf;
+            file.close();
+            PulsarCore::account_update();
         }
-        conf.insert_or_assign("showWarnings", command[2] == "true");
-        ofstream file(PulsarCore::current_path + "\\system\\profiles\\" + PulsarCurrentProfile::name + "\\settings\\config.toml");
-        file << conf;
-        file.close();
-        PulsarCore::account_update();
+        else if (command[1] == "setLocale") {
+            toml::table conf = toml::parse_file(PulsarCore::current_path + "\\system\\profiles\\" + PulsarCurrentProfile::name + "\\settings\\config.toml" );
+            conf.insert_or_assign("locale", command[2]);
+            ofstream file(PulsarCore::current_path + "\\system\\profiles\\" + PulsarCurrentProfile::name + "\\settings\\config.toml");
+            file << conf;
+            file.close();
+            PulsarCore::account_update();
+        }
     }
-
-}
 
 
 void CommandConfig::execute(const vector<string> &command) {
@@ -51,6 +67,10 @@ void CommandConfig::execute(const vector<string> &command) {
 
 void CommandPulsar::execute(const std::vector<std::string> &command) {
     if (command[1] == "info") {
-
+        PulsarCurrentProfile::show_info();
+    }
+    else if (command[1] == "calc") {
+        string commandSys = PulsarCore::current_path + "\\system\\systemmodules && pulsarcalc" + (PulsarCore::platform == "Windows") ? ".exe" : ".deb";
+        system(commandSys.c_str());
     }
 }
