@@ -26,7 +26,7 @@ void PulsarProfileManager::setup_accounts() {
 }
 
 toml::table PulsarProfileManager::setup_standart_settings() {
-    toml::table config {{"showWarnings" , true}, {"name" , "none"}, {"locale" , "standard_locale.toml"}, {"path", PulsarCore::current_path}};
+    toml::table config {{"showWarnings" , true}, {"name" , "none"}, {"locale" , "standard_locale.toml"}, {"path", PulsarCore::current_path}, {"theme", "standard.txt"}};
     return config;
 }
 
@@ -52,7 +52,7 @@ void PulsarProfileManager::login_profile(string name) {
             PulsarCurrentProfile::showWarnings = config["showWarnings"].value_or(true);
         }
         else {
-            cerr << PulsarCore::pulsar_locale["Профиль не найден"].value_or("ERROR: [LOCALE ERROR]") << endl;
+            cerr << PulsarCore::pulsar_locale["profile_not_found"].value_or("Profile not found") << endl;
         }
     }
 

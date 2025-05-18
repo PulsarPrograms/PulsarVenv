@@ -14,7 +14,7 @@ public:
     static std::string launch_time;
 
 
-    static int account_update();
+    static int account_update(bool is_clear=false);
     // основной функционал
 
     /**

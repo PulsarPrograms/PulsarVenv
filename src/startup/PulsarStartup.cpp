@@ -12,7 +12,7 @@ using namespace std;
 PulsarStartup::PulsarStartup() {
     PulsarStartup::start_time = clock();
     PulsarStartup::current_path = filesystem::current_path().string();
-    PulsarStartup::version = "1.0.0";
+    PulsarStartup::version = "y25w20a snapshot";
     PulsarStartup::launch_time = getCurrentDateTime();
 }
 
@@ -23,7 +23,7 @@ std::string PulsarStartup::get_version() {
 //.
 bool PulsarStartup::check_have_directories() {
     bool is_have_directories = true;
-    string directories[]{PulsarStartup::current_path + "\\system", PulsarStartup::current_path + "\\system\\profiles"};
+    string directories[]{PulsarStartup::current_path + "\\system", PulsarStartup::current_path + "\\system\\profiles" , PulsarStartup::current_path + "\\system\\themes", PulsarStartup::current_path + "\\system\\systemmodules", PulsarStartup::current_path + "\\system\\locale"};
     for (auto directory : directories) {
         if (!(filesystem::exists(directory))) {
             cerr << PulsarStartup::pulsar_locale["not_found_directory"].value_or("PulsarStartup error: The system directory is missing -- ")  << directory << endl;

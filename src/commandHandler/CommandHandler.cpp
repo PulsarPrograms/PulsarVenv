@@ -58,6 +58,14 @@ void CommandSetrule::execute(const vector<string> &command) {
             file.close();
             PulsarCore::account_update();
         }
+        else if (command[1] == "setTheme") {
+            toml::table conf = toml::parse_file(PulsarCore::current_path + "\\system\\profiles\\" + PulsarCurrentProfile::name + "\\settings\\config.toml" );
+            conf.insert_or_assign("theme", command[2]);
+            ofstream file(PulsarCore::current_path + "\\system\\profiles\\" + PulsarCurrentProfile::name + "\\settings\\config.toml");
+            file << conf;
+            file.close();
+            PulsarCore::account_update(true);
+        }
     }
 
 
