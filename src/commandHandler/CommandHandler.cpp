@@ -70,7 +70,8 @@ void CommandPulsar::execute(const std::vector<std::string> &command) {
         PulsarCurrentProfile::show_info();
     }
     else if (command[1] == "calc") {
-        string commandSys = PulsarCore::current_path + "\\system\\systemmodules && pulsarcalc" + (PulsarCore::platform == "Windows") ? ".exe" : ".deb";
+        string exten = (PulsarCore::platform == "Windows") ? ".exe" : ".deb";
+        string commandSys = PulsarCore::current_path + "\\system\\systemmodules && pulsarcalc" + exten;
         system(commandSys.c_str());
     }
 }
