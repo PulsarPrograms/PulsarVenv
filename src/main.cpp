@@ -138,6 +138,8 @@ int main(int argc, char* argv[]) {
         }
     } catch (string error) {
         cout << "PulsarError: " <<  error << endl;
+        cin.get();
+        return 1;
     }
     return 0;
 

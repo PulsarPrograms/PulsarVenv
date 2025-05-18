@@ -13,7 +13,7 @@ using namespace std;
 void CommandHandler::execute(string command) {
     string command_without_quotes = remove_quotes(command);
     vector<string> command_split = split(command_without_quotes, " ");
-    if (command_split.size() >=2 ) {
+    if (command_split.size() >=2  || (command_split.size() >=1 && (command_split[0] == "exit" || command_split[0] == "cls" || command_split[0] == "calc"))) {
         if (command_split[0] == "pulsar") {
             CommandPulsar pulsar_com;
             pulsar_com.execute(command_split);
@@ -25,6 +25,12 @@ void CommandHandler::execute(string command) {
         else if (command_split[0] == "config") {
             CommandConfig command_config;
             command_config.execute(command_split);
+        }
+        else if (command_split[0] == "calc") {
+            string exten = (PulsarCore::platform == "Windows") ? ".exe" : ".deb";
+            string calc_arg = (command_split.size() >= 2) ? command_split[1] : "";
+            string commandSys ="cd " + PulsarCore::current_path + "\\system\\systemmodules && pulsarcalc" + exten + " " + calc_arg;
+            system(commandSys.c_str());
         }
     }
     else {
@@ -68,10 +74,5 @@ void CommandConfig::execute(const vector<string> &command) {
 void CommandPulsar::execute(const std::vector<std::string> &command) {
     if (command[1] == "info") {
         PulsarCurrentProfile::show_info();
-    }
-    else if (command[1] == "calc") {
-        string exten = (PulsarCore::platform == "Windows") ? ".exe" : ".deb";
-        string commandSys = PulsarCore::current_path + "\\system\\systemmodules && pulsarcalc" + exten;
-        system(commandSys.c_str());
     }
 }
