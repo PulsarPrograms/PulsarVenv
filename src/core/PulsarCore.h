@@ -4,6 +4,7 @@
 #include <../include/toml++/toml.h>
 
 class PulsarCore {
+    int profile_start();
 
 public:
     static std::string current_path;
@@ -22,6 +23,7 @@ public:
      * @return error code
      */
     int start();
+
 
 
 

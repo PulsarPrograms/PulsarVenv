@@ -136,8 +136,8 @@ int main(int argc, char* argv[]) {
             }
             core.start();
         }
-    } catch (string error) {
-        cout << "PulsarError: " <<  error << endl;
+    } catch (const std::exception& error) {
+        cout << "PulsarError: " <<  error.what() << endl;
         cin.get();
         return 1;
     }

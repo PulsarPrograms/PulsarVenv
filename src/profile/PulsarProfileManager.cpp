@@ -50,10 +50,10 @@ void PulsarProfileManager::login_profile(string name) {
             toml::table config = toml::parse_file(path_to_acc + "\\settings\\config.toml");
             PulsarCurrentProfile::name = config["name"].value_or(name);
             PulsarCurrentProfile::showWarnings = config["showWarnings"].value_or(true);
+            return;
         }
-        else {
-            cerr << PulsarCore::pulsar_locale["profile_not_found"].value_or("Profile not found") << endl;
-        }
+        throw runtime_error(PulsarCore::pulsar_locale["profile_not_found"].value_or("Profile not found"));
+
     }
 
 }

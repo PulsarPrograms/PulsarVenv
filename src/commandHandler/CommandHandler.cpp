@@ -34,7 +34,7 @@ void CommandHandler::execute(string command) {
         }
     }
     else {
-        cerr << PulsarCore::pulsar_locale["invalid_value"].value_or("ERROR: [LOCALE ERROR] ") << endl;
+        throw string(PulsarCore::pulsar_locale["invalid_value"].value_or("ERROR: [LOCALE ERROR] "));
     }
 }
 
@@ -43,6 +43,7 @@ void CommandSetrule::execute(const vector<string> &command) {
             toml::table conf = toml::parse_file(PulsarCore::current_path + "\\system\\profiles\\" + PulsarCurrentProfile::name + "\\settings\\config.toml" );
             if (!(command[2] == "true" || command[2] == "false")) {
                 cerr << PulsarCore::pulsar_locale["invalid_value"].value_or("ERROR: [LOCALE ERROR] ") << endl;
+                return;
             }
             conf.insert_or_assign("showWarnings", command[2] == "true");
             ofstream file(PulsarCore::current_path + "\\system\\profiles\\" + PulsarCurrentProfile::name + "\\settings\\config.toml");

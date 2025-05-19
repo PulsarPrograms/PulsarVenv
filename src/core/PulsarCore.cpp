@@ -17,11 +17,11 @@ string PulsarCore::launch_time = "";
 
 int PulsarCore::account_update(bool is_clear) {
     if (!(filesystem::exists(PulsarCore::current_path + "\\system\\profiles\\" + PulsarCurrentProfile::name + "\\settings\\config.toml"))) {
-        cerr << PulsarCore::pulsar_locale["file_not_exixts"].value_or("ERROR: [LOCALE ERROR] ")<< endl;
+        throw runtime_error( PulsarCore::pulsar_locale["file_not_exixts"].value_or("ERROR: [LOCALE ERROR] "));
     }
     toml::table config = toml::parse_file(PulsarCore::current_path + "\\system\\profiles\\" + PulsarCurrentProfile::name + "\\settings\\config.toml");
     if (!(filesystem::exists(PulsarCore::current_path + "\\system\\locale\\" + config["locale"].value_or("standard_locale.toml")))) {
-        cerr << PulsarCore::pulsar_locale["file_not_exixts"].value_or("ERROR: [LOCALE ERROR] ")<< endl;
+        throw runtime_error( PulsarCore::pulsar_locale["file_not_exixts"].value_or("ERROR: [LOCALE ERROR] "));
     }
     PulsarCore::pulsar_locale = toml::parse_file(PulsarCore::current_path + "\\system\\locale\\" + config["locale"].value_or("standard_locale.toml"));
     PulsarCurrentProfile::name = config["name"].value_or(PulsarCurrentProfile::name);
@@ -30,7 +30,7 @@ int PulsarCore::account_update(bool is_clear) {
         string line;
         fstream file(PulsarCore::current_path + "\\system\\themes\\" + config["theme"].value_or("standard.txt"), fstream::in | fstream::out | ios::app);
         if (!(file.is_open())) {
-            cerr << pulsar_locale["file_not_exixts"].value_or("ERROR: [LOCALE ERROR]") << endl;
+            throw runtime_error(pulsar_locale["file_not_exixts"].value_or("ERROR: [LOCALE ERROR]"));
         }
         clear_screen();
         while (getline(file, line)) {
@@ -42,10 +42,15 @@ int PulsarCore::account_update(bool is_clear) {
     return 0;
 }
 
-int PulsarCore::start() {
+int PulsarCore::profile_start() {
     clear_screen();
-    string command;
     account_update(true);
+}
+
+
+int PulsarCore::start() {
+    profile_start();
+    string command;
     while (true) {
         cout << "$> "; getline(cin, command);
         CommandHandler::execute(command);
