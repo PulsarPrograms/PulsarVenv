@@ -5,7 +5,7 @@
 class CommandHandler {
 
 public:
-    static void execute(std::string command);
+    static int execute(std::string command);
 };
 
 

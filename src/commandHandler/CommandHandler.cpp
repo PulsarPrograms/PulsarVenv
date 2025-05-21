@@ -1,7 +1,7 @@
 #include "CommandHandler.h"
 
 #include <iostream>
-#include <../utils/split/split.h>
+#include <../utils/utils.h>
 #include <string>
 #include <toml++/toml.h>
 #include "../profile/PulsarProfileManager.h"
@@ -10,10 +10,14 @@
 
 using namespace std;
 
-void CommandHandler::execute(string command) {
+int CommandHandler::execute(string command) {
     string command_without_quotes = remove_quotes(command);
-    vector<string> command_split = split(command_without_quotes, " ");
-    if (command_split.size() >=2  || (command_split.size() >=1 && (command_split[0] == "exit" || command_split[0] == "cls" || command_split[0] == "calc"))) {
+    vector<string> command_split = split(command_without_quotes);
+    if (command_split.size() ==1 && command_split[0] == "pulserror") {
+        cerr << PulsarCore::pulsar_locale["not_critical_error"].value_or("ERROR: [LOCALE ERROR] ") << endl;
+        return 111; // Не критичная ошибка
+    }
+    if (command_split.size() >=2  || (command_split.size() >=1 && (command_split[0] == "exit" || command_split[0] == "clear" || command_split[0] == "calc" || command_split[0] == "out"))) {
         if (command_split[0] == "pulsar") {
             CommandPulsar pulsar_com;
             pulsar_com.execute(command_split);
@@ -32,10 +36,24 @@ void CommandHandler::execute(string command) {
             string commandSys ="cd " + PulsarCore::current_path + "\\system\\systemmodules && pulsarcalc" + exten + " " + calc_arg;
             system(commandSys.c_str());
         }
+        else if (command_split[0] == "clear") {
+           PulsarCore::account_update(true);
+        }
+        else if (command_split[0] == "exit") {
+            return 101; //код выхода
+        }
+        else if (command_split[0] == "out") {
+            for (size_t i = 1; i < command_split.size(); ++i) {
+                cout << command_split[i];
+                if (i != command_split.size() - 1) cout << " ";
+            }
+            cout << "\n";
+        }
     }
     else {
-        throw string(PulsarCore::pulsar_locale["invalid_value"].value_or("ERROR: [LOCALE ERROR] "));
+        cerr << PulsarCore::pulsar_locale["invalid_value"].value_or("ERROR: [LOCALE ERROR] ") << endl;
     }
+    return 0;
 }
 
 void CommandSetrule::execute(const vector<string> &command) {
@@ -80,7 +98,7 @@ void CommandConfig::execute(const vector<string> &command) {
     }
 }
 
-void CommandPulsar::execute(const std::vector<std::string> &command) {
+void CommandPulsar::execute(const vector<string>& command) {
     if (command[1] == "info") {
         PulsarCurrentProfile::show_info();
     }

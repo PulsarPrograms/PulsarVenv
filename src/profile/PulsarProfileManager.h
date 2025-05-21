@@ -14,8 +14,8 @@ private:
     PulsarProfileManager();
     std::vector<std::string> account_names;
     void setup_accounts();
-    void register_profile(std::string name);
-    void login_profile(std::string name);
+    int register_profile(std::string name);
+    int login_profile(std::string name);
 };
 
 class PulsarCurrentProfile {

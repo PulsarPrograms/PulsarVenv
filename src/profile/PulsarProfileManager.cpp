@@ -5,7 +5,7 @@
 #include <string>
 #include <fstream>
 #include <../include/toml++/toml.hpp>
-#include <../utils/other_utils/other_utils.h>
+#include <../utils/utils.h>
 
 using namespace std;
 
@@ -30,7 +30,7 @@ toml::table PulsarProfileManager::setup_standart_settings() {
     return config;
 }
 
-void PulsarProfileManager::register_profile(string name) {
+int PulsarProfileManager::register_profile(string name) {
     string newProfile = PulsarCore::current_path + "\\system\\profiles\\" + name;
     filesystem::create_directory(newProfile);
     filesystem::create_directory(newProfile + "\\settings");
@@ -41,20 +41,21 @@ void PulsarProfileManager::register_profile(string name) {
     std::ofstream file(newProfile + "\\settings" + "\\config.toml");
     file << config;
     file.close();
+    return 0;
 }
 
-void PulsarProfileManager::login_profile(string name) {
+int PulsarProfileManager::login_profile(string name) {
     for (const auto& account : account_names) {
         if (account == name) {
             string path_to_acc = PulsarCore::current_path + "\\system\\profiles\\" + name;
             toml::table config = toml::parse_file(path_to_acc + "\\settings\\config.toml");
             PulsarCurrentProfile::name = config["name"].value_or(name);
             PulsarCurrentProfile::showWarnings = config["showWarnings"].value_or(true);
-            return;
+            return 0;
         }
-        throw runtime_error(PulsarCore::pulsar_locale["profile_not_found"].value_or("Profile not found"));
-
     }
+    cerr << PulsarCore::pulsar_locale["profile_not_found"].value_or("Profile not found") << endl;
+    return 1;
 
 }
 void PulsarCurrentProfile::show_info() {

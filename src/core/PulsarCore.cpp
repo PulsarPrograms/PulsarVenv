@@ -4,7 +4,7 @@
 #include <../include/toml++/toml.h>
 #include <../profile/PulsarProfileManager.h>
 #include "../commandHandler/CommandHandler.h"
-#include "../utils/clearScreen/clear_screen.h"
+#include "../utils/utils.h"
 
 using namespace std;
 
@@ -17,11 +17,13 @@ string PulsarCore::launch_time = "";
 
 int PulsarCore::account_update(bool is_clear) {
     if (!(filesystem::exists(PulsarCore::current_path + "\\system\\profiles\\" + PulsarCurrentProfile::name + "\\settings\\config.toml"))) {
-        throw runtime_error( PulsarCore::pulsar_locale["file_not_exixts"].value_or("ERROR: [LOCALE ERROR] "));
+        cerr << PulsarCore::pulsar_locale["file_not_exixts"].value_or("ERROR: [LOCALE ERROR] ") <<endl;
+        return 1;
     }
     toml::table config = toml::parse_file(PulsarCore::current_path + "\\system\\profiles\\" + PulsarCurrentProfile::name + "\\settings\\config.toml");
     if (!(filesystem::exists(PulsarCore::current_path + "\\system\\locale\\" + config["locale"].value_or("standard_locale.toml")))) {
-        throw runtime_error( PulsarCore::pulsar_locale["file_not_exixts"].value_or("ERROR: [LOCALE ERROR] "));
+        cerr << PulsarCore::pulsar_locale["file_not_exixts"].value_or("ERROR: [LOCALE ERROR] ") << endl;
+        return 1;
     }
     PulsarCore::pulsar_locale = toml::parse_file(PulsarCore::current_path + "\\system\\locale\\" + config["locale"].value_or("standard_locale.toml"));
     PulsarCurrentProfile::name = config["name"].value_or(PulsarCurrentProfile::name);
@@ -30,7 +32,7 @@ int PulsarCore::account_update(bool is_clear) {
         string line;
         fstream file(PulsarCore::current_path + "\\system\\themes\\" + config["theme"].value_or("standard.txt"), fstream::in | fstream::out | ios::app);
         if (!(file.is_open())) {
-            throw runtime_error(pulsar_locale["file_not_exixts"].value_or("ERROR: [LOCALE ERROR]"));
+            cerr << pulsar_locale["file_not_exixts"].value_or("ERROR: [LOCALE ERROR]") <<endl;
         }
         clear_screen();
         while (getline(file, line)) {
@@ -44,17 +46,31 @@ int PulsarCore::account_update(bool is_clear) {
 
 int PulsarCore::profile_start() {
     clear_screen();
-    account_update(true);
+    if (account_update(true)!= 0) {
+        return 1;
+    }
+    return 0;
 }
 
 
 int PulsarCore::start() {
-    profile_start();
+    if (profile_start() != 0) {
+        return 1;
+    }
     string command;
     while (true) {
         cout << "$> "; getline(cin, command);
-        CommandHandler::execute(command);
-
+        // Результат выполнения и обработка
+        int result = CommandHandler::execute(command);
+        if (result  != 0 && result != 101 && result != 111) {
+            return 1;
+        }
+        else if (result == 101) {
+            return 0;
+        }
+        else if (result == 111) {
+            continue;
+        }
     }
 return 0;
 }

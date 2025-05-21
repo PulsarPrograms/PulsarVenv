@@ -18,6 +18,7 @@
 
 using namespace std;
 /* Чтобы не раскидывать мини функции по аддонам добавил их в main. */
+
 void normalize_locale() {
 #ifdef _WIN32
     SetConsoleOutputCP(CP_UTF8);
@@ -32,29 +33,6 @@ bool is_running_under_wine() {
     return (wineLoader != nullptr || winePrefix != nullptr);
 }
 
-bool is_running_on_linux() {
-#ifdef __linux__
-    return true;
-#else
-    return false;
-#endif
-}
-
-bool is_running_on_windows() {
-#ifdef _WIN32
-    return true;
-#else
-    return false;
-#endif
-}
-
-bool is_running_on_mac_os() {
-#ifdef __APPLE__
-    return true;
-#else
-    return false;
-#endif
-}
 
 string get_current_os() {
     if (is_running_under_wine()) {
@@ -75,9 +53,8 @@ string get_current_os() {
 
 
 
-/* Функция main тоже относится к PulsarStartup, выполняет свызь всех компонентов*/
+/* Функция main тоже относится к PulsarStartup, выполняет связь всех компонентов. Второе ядро, связующее все компоненты*/
 int main(int argc, char* argv[]) {
-    try {
         // Устанавливаем локаль
         normalize_locale();
         // Инициализация всех нужных компонентов
@@ -96,12 +73,17 @@ int main(int argc, char* argv[]) {
 
         PulsarProfileManager manager; // Менеджер профилей
         manager.setup_accounts(); // Устанавливаем имена аккаунтов
+        // Аргументы
         if (argc > 2) {
             bool register_or_login = false;
             for (int i = 1; i < argc; ++i) {
                 string arg = argv[i];
                 if (arg == "-l" && i + 1 < argc) {
-                    manager.login_profile(argv[i + 1]);
+                    if (manager.login_profile(argv[i + 1]) != 0) {
+                        cerr << "Нажмите Enter для выхода...";
+                        cin.get();
+                        return 1;
+                    }
                     i++;
                     register_or_login = true;
                 }
@@ -121,7 +103,8 @@ int main(int argc, char* argv[]) {
                 }
             }
 
-        } else {
+        }
+        else {
 
             if (manager.account_names.size() == 0) {
                 string name;
@@ -132,15 +115,21 @@ int main(int argc, char* argv[]) {
             else {
                 string name;
                 cout << PulsarCore::pulsar_locale["enter_name_profile"].value_or("Enter the profile name: ") << ": "; getline(cin, name);
-                manager.login_profile(name);
+                if (manager.login_profile(name) != 0) {
+                    cerr << "Нажмите Enter для выхода...";
+                    cin.get();
+                    return 1;
+                }
             }
-            core.start();
+            if (core.start() != 0) {
+                cerr << "Нажмите Enter для выхода...";
+                cin.get();
+                return 1;
+            }
+
         }
-    } catch (const std::exception& error) {
-        cout << "PulsarError: " <<  error.what() << endl;
-        cin.get();
-        return 1;
-    }
+
     return 0;
 
 }
+
