@@ -41,6 +41,11 @@ int PulsarProfileManager::register_profile(string name) {
     std::ofstream file(newProfile + "\\settings" + "\\config.toml");
     file << config;
     file.close();
+    toml::table alias {};
+    std::ofstream file1(newProfile + "\\settings" + "\\alias.toml");
+    file1 << alias;
+    file1.close();
+
     return 0;
 }
 

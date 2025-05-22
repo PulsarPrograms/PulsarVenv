@@ -29,3 +29,13 @@ class CommandConfig {
 public:
     void execute(const std::vector<std::string> &command);
 };
+
+class CommandScript {
+    public:
+    int execute(const std::vector<std::string> &command);
+};
+
+class CommandAlias {
+    public:
+    int execute(const std::vector<std::string> &command);
+};

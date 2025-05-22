@@ -14,8 +14,15 @@ string PulsarCore::version = "";
 string PulsarCore::platform = "";
 int PulsarCore::start_time = 0;
 string PulsarCore::launch_time = "";
+toml::table PulsarCore::alias;
 
 int PulsarCore::account_update(bool is_clear) {
+    if (!(filesystem::exists(PulsarCore::current_path + "\\system\\profiles\\" + PulsarCurrentProfile::name + "\\settings\\alias.toml"))) {
+        cerr << PulsarCore::pulsar_locale["file_not_exixts"].value_or("ERROR: [LOCALE ERROR] ") <<endl;
+        return 1;
+    }
+    PulsarCore::alias = toml::parse_file(PulsarCore::current_path + "\\system\\profiles\\" + PulsarCurrentProfile::name + "\\settings\\alias.toml");
+
     if (!(filesystem::exists(PulsarCore::current_path + "\\system\\profiles\\" + PulsarCurrentProfile::name + "\\settings\\config.toml"))) {
         cerr << PulsarCore::pulsar_locale["file_not_exixts"].value_or("ERROR: [LOCALE ERROR] ") <<endl;
         return 1;
@@ -32,7 +39,7 @@ int PulsarCore::account_update(bool is_clear) {
         string line;
         fstream file(PulsarCore::current_path + "\\system\\themes\\" + config["theme"].value_or("standard.txt"), fstream::in | fstream::out | ios::app);
         if (!(file.is_open())) {
-            cerr << pulsar_locale["file_not_exixts"].value_or("ERROR: [LOCALE ERROR]") <<endl;
+            cerr << pulsar_locale["file_error"].value_or("ERROR: [LOCALE ERROR]") <<endl;
         }
         clear_screen();
         while (getline(file, line)) {

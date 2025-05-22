@@ -13,6 +13,7 @@ public:
     static std::string version;
     static int start_time;
     static std::string launch_time;
+    static toml::table alias;
 
 
     static int account_update(bool is_clear=false);
