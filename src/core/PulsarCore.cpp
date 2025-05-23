@@ -35,6 +35,7 @@ int PulsarCore::account_update(bool is_clear) {
     PulsarCore::pulsar_locale = toml::parse_file(PulsarCore::current_path + "\\system\\locale\\" + config["locale"].value_or("standard_locale.toml"));
     PulsarCurrentProfile::name = config["name"].value_or(PulsarCurrentProfile::name);
     PulsarCurrentProfile::showWarnings = config["showWarnings"].value_or(PulsarCurrentProfile::showWarnings);
+    PulsarCurrentProfile::betaFunc = config["betaFunc"].value_or(false);
     if (is_clear) {
         string line;
         fstream file(PulsarCore::current_path + "\\system\\themes\\" + config["theme"].value_or("standard.txt"), fstream::in | fstream::out | ios::app);

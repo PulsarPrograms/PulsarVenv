@@ -12,6 +12,7 @@ using namespace std;
 
 string PulsarCurrentProfile::name;
 bool PulsarCurrentProfile::showWarnings = true;
+bool PulsarCurrentProfile::betaFunc = false;
 
 
 
@@ -27,7 +28,7 @@ void PulsarProfileManager::setup_accounts() {
 }
 
 toml::table PulsarProfileManager::setup_standart_settings() {
-    toml::table config {{"showWarnings" , true}, {"name" , "none"}, {"locale" , "standard_locale.toml"}, {"path", PulsarCore::current_path}, {"theme", "standard.txt"}};
+    toml::table config {{"showWarnings" , true}, {"betaFunc", false}, {"name" , "none"}, {"locale" , "standard_locale.toml"}, {"path", PulsarCore::current_path}, {"theme", "standard.txt"}};
     return config;
 }
 
@@ -39,6 +40,7 @@ int PulsarProfileManager::register_profile(string name) {
     config.insert_or_assign("name", name);
     PulsarCurrentProfile::name = config["name"].value_or(name);
     PulsarCurrentProfile::showWarnings = config["showWarnings"].value_or(true);
+    PulsarCurrentProfile::betaFunc = config["betaFunc"].value_or(false);
     std::ofstream file(newProfile + "\\settings" + "\\config.toml");
     file << config;
     file.close();
@@ -59,6 +61,7 @@ int PulsarProfileManager::login_profile(string name) {
             toml::table config = toml::parse_file(path_to_acc + "\\settings\\config.toml");
             PulsarCurrentProfile::name = config["name"].value_or(name);
             PulsarCurrentProfile::showWarnings = config["showWarnings"].value_or(true);
+            PulsarCurrentProfile::betaFunc = config["betaFunc"].value_or(false);
             return 0;
         }
     }

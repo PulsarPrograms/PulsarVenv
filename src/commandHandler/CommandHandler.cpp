@@ -50,12 +50,22 @@ int CommandHandler::execute(string command) {
             command_config.execute(command_split);
         }
         else if (command_split[0] == "alias") {
-            CommandAlias command_alias;
-            command_alias.execute(command_split);
+            if (PulsarCurrentProfile::betaFunc) {
+                CommandAlias command_alias;
+                command_alias.execute(command_split);
+            }
+            else {
+                cerr << PulsarCore::pulsar_locale["try_beta_func"].value_or("ERROR: [LOCALE ERROR] ") << endl;
+                return 111;
+            }
         }
         else if (command_split[0] == "log") {
             CommandLog command_log;
             command_log.execute(command_split);
+        }
+        else if (command_split[0] == "utils") {
+            CommandUtils command_utils;
+            command_utils.execute(command_split);
         }
         else if (command_split[0] == "calc") {
             string exten = (PulsarCore::platform == "Windows") ? ".exe" : ".deb";
@@ -118,6 +128,18 @@ void CommandSetrule::execute(const vector<string> &command) {
             file << conf;
             file.close();
             PulsarCore::account_update(true);
+        }
+        else if (command[1] == "betaFunc") {
+            toml::table conf = toml::parse_file(PulsarCore::current_path + "\\system\\profiles\\" + PulsarCurrentProfile::name + "\\settings\\config.toml" );
+            if (!(command[2] == "true" || command[2] == "false")) {
+                cerr << PulsarCore::pulsar_locale["invalid_value"].value_or("ERROR: [LOCALE ERROR] ") << endl;
+                return;
+            }
+            conf.insert_or_assign("betaFunc", command[2] == "true");
+            ofstream file(PulsarCore::current_path + "\\system\\profiles\\" + PulsarCurrentProfile::name + "\\settings\\config.toml");
+            file << conf;
+            file.close();
+            PulsarCore::account_update();
         }
     }
 
@@ -258,3 +280,23 @@ int CommandLog::execute(const std::vector<std::string> &command) {
     }
     return 0;
 }
+int CommandUtils::start_point_time = 0;
+int CommandUtils::end_point_time = 0;
+int CommandUtils::last_total_time = 0;
+
+int CommandUtils::execute(const std::vector<std::string> &command) {
+    if (command.size() >= 3 && command[1] == "timer") {
+        if (command[2] == "start") {
+            CommandUtils::start_point_time = clock();
+        }
+        else if (command[2] == "stop") {
+            CommandUtils::end_point_time = clock();
+            CommandUtils::last_total_time = (CommandUtils::end_point_time - CommandUtils::start_point_time) / 1000;
+        }
+        else if (command[2] == "show") {
+            cout << CommandUtils::last_total_time << " sec." <<endl;
+        }
+    }
+    return 0;
+}
+
