@@ -6,6 +6,7 @@
 #include <fstream>
 #include <../include/toml++/toml.hpp>
 #include <../utils/utils.h>
+#include <iomanip>
 
 using namespace std;
 
@@ -45,6 +46,8 @@ int PulsarProfileManager::register_profile(string name) {
     std::ofstream file1(newProfile + "\\settings" + "\\alias.toml");
     file1 << alias;
     file1.close();
+    ofstream file2(newProfile + "\\settings" + "\\log.pulslog");
+    file2.close();
 
     return 0;
 }
@@ -65,10 +68,19 @@ int PulsarProfileManager::login_profile(string name) {
 }
 void PulsarCurrentProfile::show_info() {
     unsigned int point_time = clock();
-    cout << PulsarCore::pulsar_locale["profile_name"].value_or("ERROR: [LOCALE ERROR]") << "   " << PulsarCurrentProfile::name << endl;
-    cout << PulsarCore::pulsar_locale["current_os"].value_or("ERROR: [LOCALE ERROR]") << "  " << PulsarCore::platform << endl;
-    cout << PulsarCore::pulsar_locale["current_version"].value_or("ERROR: [LOCALE ERROR]") << "   " << PulsarCore::version << endl;
-    cout << PulsarCore::pulsar_locale["current_time"].value_or("ERROR: [LOCALE ERROR]") << "   " << getCurrentDateTime() <<endl;
-    cout << PulsarCore::pulsar_locale["work_time"].value_or("ERROR: [LOCALE ERROR]") << "   " << (point_time - PulsarCore::start_time) / 1000 << " sec" << endl;
-    cout << PulsarCore::pulsar_locale["start_time"].value_or("ERROR: [LOCALE ERROR]") << "   " << PulsarCore::launch_time << endl;
+    const int label_width = 20;
+    const int value_width = 30;
+
+    auto print_row = [&](const std::string& label, const std::string& value) {
+        std::cout << std::left << std::setw(label_width) << label
+                  << std::left << std::setw(value_width) << value << "\n";
+    };
+
+    print_row(PulsarCore::pulsar_locale["profile_name"].value_or("ERROR:"), PulsarCurrentProfile::name);
+    print_row(PulsarCore::pulsar_locale["current_os"].value_or("ERROR:"), PulsarCore::platform);
+    print_row(PulsarCore::pulsar_locale["current_version"].value_or("ERROR:"), PulsarCore::version);
+    print_row(PulsarCore::pulsar_locale["current_time"].value_or("ERROR:"), get_current_date_time());
+    print_row(PulsarCore::pulsar_locale["work_time"].value_or("ERROR:"),
+              std::to_string((point_time - PulsarCore::start_time) / 1000) + " sec");
+    print_row(PulsarCore::pulsar_locale["start_time"].value_or("ERROR:"), PulsarCore::launch_time);
 }

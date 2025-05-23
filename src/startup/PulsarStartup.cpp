@@ -13,7 +13,7 @@ PulsarStartup::PulsarStartup() {
     PulsarStartup::start_time = clock();
     PulsarStartup::current_path = filesystem::current_path().string();
     PulsarStartup::version = "y25w20a snapshot";
-    PulsarStartup::launch_time = getCurrentDateTime();
+    PulsarStartup::launch_time = get_current_date_time();
 }
 
 

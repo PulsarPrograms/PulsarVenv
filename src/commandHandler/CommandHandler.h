@@ -39,3 +39,10 @@ class CommandAlias {
     public:
     int execute(const std::vector<std::string> &command);
 };
+
+class CommandLog {
+
+public:
+    static int write_in_log(const std::string text, bool is_time, bool is_trunc=false);
+    int execute(const std::vector<std::string> &command);
+};

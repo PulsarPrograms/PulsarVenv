@@ -7,7 +7,7 @@ using namespace std;
 void clear_screen();
 
 
-string getCurrentDateTime();
+string get_current_date_time();
 
 vector<std::string> split(const string& str);
 

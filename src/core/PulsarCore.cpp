@@ -61,6 +61,7 @@ int PulsarCore::profile_start() {
 
 
 int PulsarCore::start() {
+    CommandLog::write_in_log(" %% start pulsar", true, false);
     if (profile_start() != 0) {
         return 1;
     }
@@ -73,6 +74,7 @@ int PulsarCore::start() {
             return 1;
         }
         else if (result == 101) {
+            CommandLog::write_in_log(" %% registry exit pulsar", true, false);
             return 0;
         }
         else if (result == 111) {
