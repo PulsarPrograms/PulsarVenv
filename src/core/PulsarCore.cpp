@@ -17,28 +17,28 @@ string PulsarCore::launch_time = "";
 toml::table PulsarCore::alias;
 
 int PulsarCore::account_update(bool is_clear) {
-    if (!(filesystem::exists(PulsarCore::current_path + "\\system\\profiles\\" + PulsarCurrentProfile::name + "\\settings\\alias.toml"))) {
+    if (!(filesystem::exists(PulsarCore::current_path + "/system/profiles/" + PulsarCurrentProfile::name + "/settings/alias.toml"))) {
         cerr << PulsarCore::pulsar_locale["file_not_exixts"].value_or("ERROR: [LOCALE ERROR] ") <<endl;
         return 1;
     }
-    PulsarCore::alias = toml::parse_file(PulsarCore::current_path + "\\system\\profiles\\" + PulsarCurrentProfile::name + "\\settings\\alias.toml");
+    PulsarCore::alias = toml::parse_file(PulsarCore::current_path + "/system/profiles/" + PulsarCurrentProfile::name + "/settings/alias.toml");
 
-    if (!(filesystem::exists(PulsarCore::current_path + "\\system\\profiles\\" + PulsarCurrentProfile::name + "\\settings\\config.toml"))) {
+    if (!(filesystem::exists(PulsarCore::current_path + "/system/profiles/" + PulsarCurrentProfile::name + "/settings/config.toml"))) {
         cerr << PulsarCore::pulsar_locale["file_not_exixts"].value_or("ERROR: [LOCALE ERROR] ") <<endl;
         return 1;
     }
-    toml::table config = toml::parse_file(PulsarCore::current_path + "\\system\\profiles\\" + PulsarCurrentProfile::name + "\\settings\\config.toml");
-    if (!(filesystem::exists(PulsarCore::current_path + "\\system\\locale\\" + config["locale"].value_or("standard_locale.toml")))) {
+    toml::table config = toml::parse_file(PulsarCore::current_path + "/system/profiles/" + PulsarCurrentProfile::name + "/settings/config.toml");
+    if (!(filesystem::exists(PulsarCore::current_path + "/system/locale/" + config["locale"].value_or("standard_locale.toml")))) {
         cerr << PulsarCore::pulsar_locale["file_not_exixts"].value_or("ERROR: [LOCALE ERROR] ") << endl;
         return 1;
     }
-    PulsarCore::pulsar_locale = toml::parse_file(PulsarCore::current_path + "\\system\\locale\\" + config["locale"].value_or("standard_locale.toml"));
+    PulsarCore::pulsar_locale = toml::parse_file(PulsarCore::current_path + "/system/locale/" + config["locale"].value_or("standard_locale.toml"));
     PulsarCurrentProfile::name = config["name"].value_or(PulsarCurrentProfile::name);
     PulsarCurrentProfile::showWarnings = config["showWarnings"].value_or(PulsarCurrentProfile::showWarnings);
     PulsarCurrentProfile::betaFunc = config["betaFunc"].value_or(false);
     if (is_clear) {
         string line;
-        fstream file(PulsarCore::current_path + "\\system\\themes\\" + config["theme"].value_or("standard.txt"), fstream::in | fstream::out | ios::app);
+        fstream file(PulsarCore::current_path + "/system/themes/" + config["theme"].value_or("standard.txt"), fstream::in | fstream::out | ios::app);
         if (!(file.is_open())) {
             cerr << pulsar_locale["file_error"].value_or("ERROR: [LOCALE ERROR]") <<endl;
         }

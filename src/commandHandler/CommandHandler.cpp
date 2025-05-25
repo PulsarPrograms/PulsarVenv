@@ -13,6 +13,7 @@ using namespace std;
 int CommandHandler::execute(string command) {
     CommandLog::write_in_log(command, false,false);
     string command_without_quotes = remove_quotes(command);
+    command_without_quotes = strip(command_without_quotes);
     for (auto&& [alias_key_node, alias_value] : PulsarCore::alias) {
         std::string alias_key(alias_key_node.data(), alias_key_node.length());
 
@@ -32,6 +33,7 @@ int CommandHandler::execute(string command) {
                 i--;
             }
         }
+
     if (command_split.size() ==1 && command_split[0] == "pulserror") {
         cerr << PulsarCore::pulsar_locale["not_critical_error"].value_or("ERROR: [LOCALE ERROR] ") << endl;
         return 111; // Не критичная ошибка
@@ -68,9 +70,10 @@ int CommandHandler::execute(string command) {
             command_utils.execute(command_split);
         }
         else if (command_split[0] == "calc") {
-            string exten = (PulsarCore::platform == "Windows") ? ".exe" : ".deb";
+            string exten = (PulsarCore::platform == "Windows") ? ".exe" : "";
             string calc_arg = (command_split.size() >= 2) ? command_split[1] : "";
-            string commandSys ="cd " + PulsarCore::current_path + "\\system\\systemmodules && pulsarcalc" + exten + " " + calc_arg;
+            string starter = (PulsarCore::platform == "Windows") ? "pulsarcalc" : "./pulsarcalc";
+            string commandSys ="cd " + PulsarCore::current_path + "/system/systemmodules && " + starter + exten + " " + calc_arg;
             system(commandSys.c_str());
         }
         else if (command_split[0] == "clear") {
@@ -95,48 +98,55 @@ int CommandHandler::execute(string command) {
         }
     }
     else {
+        string buffer;
+        for (const string &com : command_split) {
+            buffer += com;
+        }
+        if (buffer.empty()) {
+            return 111;
+        }
         cerr << PulsarCore::pulsar_locale["invalid_value"].value_or("ERROR: [LOCALE ERROR] ") << endl;
     }
     return 0;
 }
 
 void CommandSetrule::execute(const vector<string> &command) {
-        if (command[1] == "showWarnings") {
-            toml::table conf = toml::parse_file(PulsarCore::current_path + "\\system\\profiles\\" + PulsarCurrentProfile::name + "\\settings\\config.toml" );
+        if (command[1] == "showWarnings" && command.size() == 3) {
+            toml::table conf = toml::parse_file(PulsarCore::current_path + "/system/profiles/" + PulsarCurrentProfile::name + "/settings/config.toml" );
             if (!(command[2] == "true" || command[2] == "false")) {
                 cerr << PulsarCore::pulsar_locale["invalid_value"].value_or("ERROR: [LOCALE ERROR] ") << endl;
                 return;
             }
             conf.insert_or_assign("showWarnings", command[2] == "true");
-            ofstream file(PulsarCore::current_path + "\\system\\profiles\\" + PulsarCurrentProfile::name + "\\settings\\config.toml");
+            ofstream file(PulsarCore::current_path + "/system/profiles/" + PulsarCurrentProfile::name + "/settings/config.toml");
             file << conf;
             file.close();
             PulsarCore::account_update();
         }
-        else if (command[1] == "setLocale") {
-            toml::table conf = toml::parse_file(PulsarCore::current_path + "\\system\\profiles\\" + PulsarCurrentProfile::name + "\\settings\\config.toml" );
+        else if (command[1] == "setLocale" && command.size() == 3) {
+            toml::table conf = toml::parse_file(PulsarCore::current_path + "/system/profiles/" + PulsarCurrentProfile::name + "/settings/config.toml" );
             conf.insert_or_assign("locale", command[2]);
-            ofstream file(PulsarCore::current_path + "\\system\\profiles\\" + PulsarCurrentProfile::name + "\\settings\\config.toml");
+            ofstream file(PulsarCore::current_path + "/system/profiles/" + PulsarCurrentProfile::name + "/settings/config.toml");
             file << conf;
             file.close();
             PulsarCore::account_update();
         }
-        else if (command[1] == "setTheme") {
-            toml::table conf = toml::parse_file(PulsarCore::current_path + "\\system\\profiles\\" + PulsarCurrentProfile::name + "\\settings\\config.toml" );
+        else if (command[1] == "setTheme"&& command.size() == 3) {
+            toml::table conf = toml::parse_file(PulsarCore::current_path + "/system/profiles/" + PulsarCurrentProfile::name + "/settings/config.toml" );
             conf.insert_or_assign("theme", command[2]);
-            ofstream file(PulsarCore::current_path + "\\system\\profiles\\" + PulsarCurrentProfile::name + "\\settings\\config.toml");
+            ofstream file(PulsarCore::current_path + "/system/profiles/" + PulsarCurrentProfile::name + "/settings/config.toml");
             file << conf;
             file.close();
             PulsarCore::account_update(true);
         }
-        else if (command[1] == "betaFunc") {
-            toml::table conf = toml::parse_file(PulsarCore::current_path + "\\system\\profiles\\" + PulsarCurrentProfile::name + "\\settings\\config.toml" );
+        else if (command[1] == "betaFunc"&& command.size() == 3) {
+            toml::table conf = toml::parse_file(PulsarCore::current_path + "/system/profiles/" + PulsarCurrentProfile::name + "/settings/config.toml" );
             if (!(command[2] == "true" || command[2] == "false")) {
                 cerr << PulsarCore::pulsar_locale["invalid_value"].value_or("ERROR: [LOCALE ERROR] ") << endl;
                 return;
             }
             conf.insert_or_assign("betaFunc", command[2] == "true");
-            ofstream file(PulsarCore::current_path + "\\system\\profiles\\" + PulsarCurrentProfile::name + "\\settings\\config.toml");
+            ofstream file(PulsarCore::current_path + "/system/profiles/" + PulsarCurrentProfile::name + "/settings/config.toml");
             file << conf;
             file.close();
             PulsarCore::account_update();
@@ -147,7 +157,7 @@ void CommandSetrule::execute(const vector<string> &command) {
 void CommandConfig::execute(const vector<string> &command) {
     if (command[1] == "show") {
         string show_line;
-        ifstream file(PulsarCore::current_path + "\\system\\profiles\\" + PulsarCurrentProfile::name + "\\settings\\config.toml");
+        ifstream file(PulsarCore::current_path + "/system/profiles/" + PulsarCurrentProfile::name + "/settings/config.toml");
         while (getline(file,show_line)) {
             cout << show_line << endl;
         }
@@ -205,7 +215,7 @@ int CommandScript::execute(const vector<string>& command) {
 int CommandAlias::execute(const std::vector<std::string> &command) {
     if (command[1] == "create") {
         PulsarCore::alias.insert_or_assign(command[2], command[3]);
-        ofstream file(PulsarCore::current_path + "\\system\\profiles\\" + PulsarCurrentProfile::name + "\\settings\\alias.toml");
+        ofstream file(PulsarCore::current_path + "/system/profiles/" + PulsarCurrentProfile::name + "/settings/alias.toml");
         if (!(file.is_open())) {
             cerr << PulsarCore::pulsar_locale["file_error"].value_or("ERROR: [LOCALE ERROR]") <<endl;
         }
@@ -215,7 +225,7 @@ int CommandAlias::execute(const std::vector<std::string> &command) {
     else if (command[1] == "remove") {
         if (PulsarCore::alias.contains(command[2])) {
             PulsarCore::alias.erase(command[2]);
-            ofstream file(PulsarCore::current_path + "\\system\\profiles\\" + PulsarCurrentProfile::name + "\\settings\\alias.toml");
+            ofstream file(PulsarCore::current_path + "/system/profiles/" + PulsarCurrentProfile::name + "/settings/alias.toml");
             if (!(file.is_open())) {
                 cerr << PulsarCore::pulsar_locale["file_error"].value_or("ERROR: [LOCALE ERROR]") <<endl;
             }
@@ -224,7 +234,7 @@ int CommandAlias::execute(const std::vector<std::string> &command) {
         }
     }
     else if (command[1] == "show") {
-        fstream file(PulsarCore::current_path + "\\system\\profiles\\" + PulsarCurrentProfile::name + "\\settings\\alias.toml");
+        fstream file(PulsarCore::current_path + "/system/profiles/" + PulsarCurrentProfile::name + "/settings/alias.toml");
         if (!(file.is_open())) {
             cerr << PulsarCore::pulsar_locale["file_error"].value_or("ERROR: [LOCALE ERROR]") <<endl;
         }
@@ -240,7 +250,7 @@ int CommandAlias::execute(const std::vector<std::string> &command) {
 
 int CommandLog::write_in_log(const std::string text, bool is_time, bool is_trunc) {
     auto mode = (is_trunc) ? ios::trunc : ios::app;
-    fstream log(PulsarCore::current_path + "\\system\\profiles\\" + PulsarCurrentProfile::name + "\\settings\\log.pulslog", fstream::in | fstream::out |mode );
+    fstream log(PulsarCore::current_path + "/system/profiles/" + PulsarCurrentProfile::name + "/settings/log.pulslog", fstream::in | fstream::out |mode );
     log << text << ((is_time)? " " + get_current_date_time() : "");
     log << "\n";
     log.close();
@@ -254,7 +264,7 @@ int CommandLog::execute(const std::vector<std::string> &command) {
     }
     else if (command.size()>=2 && command[1] == "show") {
         string line;
-        fstream log(PulsarCore::current_path + "\\system\\profiles\\" + PulsarCurrentProfile::name + "\\settings\\log.pulslog", fstream::in | fstream::out |  ios::app);
+        fstream log(PulsarCore::current_path + "/system/profiles/" + PulsarCurrentProfile::name + "/settings/log.pulslog", fstream::in | fstream::out |  ios::app);
         while (getline(log,line)) {
             cout << line << endl;
         }
@@ -295,6 +305,37 @@ int CommandUtils::execute(const std::vector<std::string> &command) {
         }
         else if (command[2] == "show") {
             cout << CommandUtils::last_total_time << " sec." <<endl;
+        }
+    }
+    else if (command.size() >= 3 && command[1] == "script_to_cmd") {
+        if (command.size() >= 4 && command[2] == "-a") {
+            string line;
+            string buffer = "cd " + PulsarCore::current_path + " && PulsarVenv -l " + PulsarCurrentProfile::name + " -c ";
+            fstream file(command[3], fstream::in | fstream::out | ios::app );
+            if (!file.is_open()) {
+                cerr << PulsarCore::pulsar_locale["file_error"].value_or("LOCALE ERROR") << command[3] << endl;
+                return 1;
+            }
+            while (getline(file,line)) {
+                buffer += "\"" + line + "\" ";
+            }
+            file.close();
+            cout << buffer << endl;
+        }
+        else {
+
+            fstream file(PulsarCore::current_path + "/system/scripts/" + command[2],fstream::in | fstream::out | ios::app );
+            if (!(file.is_open())) {
+                cerr << PulsarCore::pulsar_locale["file_error"].value_or("ERROR: [LOCALE ERROR] ") << endl;
+                return 1;
+            }
+            string line;
+            string buffer = "cd " + PulsarCore::current_path + " && PulsarVenv -l " + PulsarCurrentProfile::name + " -c ";
+            while (getline(file,line)) {
+                buffer += "\"" + line + "\" ";
+            }
+            file.close();
+            cout << buffer << endl;
         }
     }
     return 0;

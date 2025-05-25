@@ -13,7 +13,7 @@ void clear_screen() {
 #ifdef _WIN32
     std::system("cls");
 #else
-    std::system("clear")
+    std::system("clear");
     #endif
 }
 
@@ -22,7 +22,11 @@ string get_current_date_time() {
     auto now = chrono::system_clock::now();
     time_t now_time = chrono::system_clock::to_time_t(now);
     tm local_time;
+#ifdef _WIN32
     localtime_s(&local_time, &now_time);
+#else
+    localtime_r(&now_time, &local_time);
+#endif
 
     stringstream datetime_stream;
     datetime_stream << put_time(&local_time, "%Y-%m-%d %H:%M:%S");
@@ -73,4 +77,8 @@ string remove_quotes(string str) {
         }
     }
     return str;
+}
+
+string strip(const std::string &str) {
+    return std::regex_replace(str, std::regex("^\\s+|\\s+$"), "");
 }
