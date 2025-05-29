@@ -10,6 +10,9 @@ public:
 
 
 class CommandPulsar {
+private:
+
+    std::vector<std::string> com{"info", "list"};
 public:
     void execute(const std::vector<std::string> &command);
 
@@ -20,22 +23,48 @@ class CommandProfile {
 };
 
 class CommandSetrule {
+private:
+    std::vector<std::string> com{
+        "setLocale",
+        "showWarnings",
+        "setTheme" ,
+        "BetaFunc",
+        "themeColor",
+        "list"
+    };
 public:
     void execute(const std::vector<std::string> &command);
 };
 
 
 class CommandConfig {
+private:
+    std::vector<std::string> com{
+        "show",
+        "list"
+    };
 public:
     void execute(const std::vector<std::string> &command);
 };
 
 class CommandScript {
+private:
+    std::vector<std::string> com{
+        "start",
+        "list"
+    };
     public:
     int execute(const std::vector<std::string> &command);
 };
 
 class CommandAlias {
+private:
+    std::vector<std::string> com{
+        "create",
+        "remove",
+        "show",
+        "list"
+    };
     public:
     int execute(const std::vector<std::string> &command);
 };

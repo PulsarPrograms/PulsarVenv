@@ -17,6 +17,7 @@ public:
 
 
     static int account_update(bool is_clear=false);
+    static int set_theme(toml::table &config, int color=7);
     // основной функционал
 
     /**

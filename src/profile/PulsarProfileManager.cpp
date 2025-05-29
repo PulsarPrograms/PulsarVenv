@@ -28,7 +28,15 @@ void PulsarProfileManager::setup_accounts() {
 }
 
 toml::table PulsarProfileManager::setup_standart_settings() {
-    toml::table config {{"showWarnings" , true}, {"betaFunc", false}, {"name" , "none"}, {"locale" , "standard_locale.toml"}, {"path", PulsarCore::current_path}, {"theme", "standard.txt"}};
+    toml::table config {
+        {"showWarnings" , true},
+        {"betaFunc", false},
+        {"name" , "none"},
+        {"locale" , "standard_locale.toml"},
+        {"path", PulsarCore::current_path},
+        {"theme", "standard.txt"},
+        {"themeColor", 7}
+    };
     return config;
 }
 
@@ -79,11 +87,11 @@ void PulsarCurrentProfile::show_info() {
                   << std::left << std::setw(value_width) << value << "\n";
     };
 
-    print_row(PulsarCore::pulsar_locale["profile_name"].value_or("ERROR:"), PulsarCurrentProfile::name);
+    set_color(8); print_row(PulsarCore::pulsar_locale["profile_name"].value_or("ERROR:"), PulsarCurrentProfile::name); set_color(7);
     print_row(PulsarCore::pulsar_locale["current_os"].value_or("ERROR:"), PulsarCore::platform);
-    print_row(PulsarCore::pulsar_locale["current_version"].value_or("ERROR:"), PulsarCore::version);
+    set_color(8); print_row(PulsarCore::pulsar_locale["current_version"].value_or("ERROR:"), PulsarCore::version); set_color(7);
     print_row(PulsarCore::pulsar_locale["current_time"].value_or("ERROR:"), get_current_date_time());
-    print_row(PulsarCore::pulsar_locale["work_time"].value_or("ERROR:"),
-              std::to_string((point_time - PulsarCore::start_time) / 1000) + " sec");
+    set_color(8); print_row(PulsarCore::pulsar_locale["work_time"].value_or("ERROR:"),
+              std::to_string((point_time - PulsarCore::start_time) / 1000) + " sec"); set_color(7);
     print_row(PulsarCore::pulsar_locale["start_time"].value_or("ERROR:"), PulsarCore::launch_time);
 }

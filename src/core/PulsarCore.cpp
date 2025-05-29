@@ -16,6 +16,28 @@ int PulsarCore::start_time = 0;
 string PulsarCore::launch_time = "";
 toml::table PulsarCore::alias;
 
+
+int PulsarCore::set_theme(toml::table &config, int color) {
+    string line;
+    fstream file(PulsarCore::current_path + "/system/themes/" + config["theme"].value_or("standard.txt"), fstream::in | fstream::out | ios::app);
+    if (!(file.is_open())) {
+        set_color(12);cerr << pulsar_locale["file_error"].value_or("ERROR: [LOCALE ERROR]") <<endl;set_color(7);
+    }
+    clear_screen();
+    set_color(color);
+    while (getline(file, line)) {
+        cout << line << endl;
+    }
+    set_color(7);
+    file.close();
+    return 0;
+
+
+}
+
+
+
+
 int PulsarCore::account_update(bool is_clear) {
     if (!(filesystem::exists(PulsarCore::current_path + "/system/profiles/" + PulsarCurrentProfile::name + "/settings/alias.toml"))) {
         cerr << PulsarCore::pulsar_locale["file_not_exixts"].value_or("ERROR: [LOCALE ERROR] ") <<endl;
@@ -37,18 +59,8 @@ int PulsarCore::account_update(bool is_clear) {
     PulsarCurrentProfile::showWarnings = config["showWarnings"].value_or(PulsarCurrentProfile::showWarnings);
     PulsarCurrentProfile::betaFunc = config["betaFunc"].value_or(false);
     if (is_clear) {
-        string line;
-        fstream file(PulsarCore::current_path + "/system/themes/" + config["theme"].value_or("standard.txt"), fstream::in | fstream::out | ios::app);
-        if (!(file.is_open())) {
-            cerr << pulsar_locale["file_error"].value_or("ERROR: [LOCALE ERROR]") <<endl;
-        }
-        clear_screen();
-        while (getline(file, line)) {
-            cout << line << endl;
-        }
-        file.close();
+        set_theme(config, config["themeColor"].value_or(7));
     }
-
     return 0;
 }
 

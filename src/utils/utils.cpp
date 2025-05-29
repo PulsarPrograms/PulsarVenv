@@ -82,3 +82,56 @@ string remove_quotes(string str) {
 string strip(const std::string &str) {
     return std::regex_replace(str, std::regex("^\\s+|\\s+$"), "");
 }
+
+#include <iostream>
+
+#ifdef _WIN32
+#define NOMINMAX
+#define WIN32_LEAN_AND_MEAN
+#include <windows.h>
+#else
+#define RESET   "\033[0m"
+#define RED     "\033[31m"
+#define GREEN   "\033[32m"
+#define YELLOW  "\033[33m"
+#define BLUE    "\033[34m"
+#define MAGENTA "\033[35m"
+#define CYAN    "\033[36m"
+#define WHITE   "\033[37m"
+#define GREY    "\033[90m"
+#define PURPLE  "\033[35m"
+#define PINK "\033[95m"
+#define NEON_CYAN "\033[96m"
+#endif
+
+void set_color(int color=7) {
+#ifdef _WIN32
+    HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
+    SetConsoleTextAttribute(hConsole, static_cast<WORD>(color));
+#else
+    switch (color) {
+        case 12: std::cout << RED; break;
+        case 10: std::cout << GREEN; break;
+        case 14: std::cout << YELLOW; break;
+        case 9:  std::cout << BLUE; break;
+        case 13: std::cout << MAGENTA; break;
+        case 11: std::cout << CYAN; break;
+        case 15: std::cout << WHITE; break;
+        case 7:  std::cout << RESET; break;
+        case 8:  std::cout << GREY; break;
+        case 5:  std::cout << PURPLE; break;
+        case 13:  std::cout << PINK; break;
+        case 11:  std::cout << NEON_CYAN; break;
+
+        default: std::cout << RESET; break;
+    }
+#endif
+}
+
+void cout_err(const string &msg) {
+    set_color(12);
+    cerr << msg << endl;
+    set_color(7);
+}
+
+

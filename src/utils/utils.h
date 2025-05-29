@@ -15,3 +15,7 @@ vector<std::string> split(const string& str);
 string remove_quotes(string str);
 
 string strip(const std::string &str);
+
+void set_color(int color);
+
+void cout_err(const string& msg);
