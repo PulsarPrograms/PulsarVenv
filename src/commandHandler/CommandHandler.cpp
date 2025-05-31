@@ -7,6 +7,7 @@
 #include "../profile/PulsarProfileManager.h"
 #include <fstream>
 #include "PulsarCore.h"
+#include "../filesystem/PulsarFilesystem.h"
 
 using namespace std;
 
@@ -70,10 +71,7 @@ int CommandHandler::execute(string command) {
             CommandLog command_log;
             command_log.execute(command_split);
         }
-        else if (command_split[0] == "utils") {
-            CommandUtils command_utils;
-            command_utils.execute(command_split);
-        }
+
         else if (command_split[0] == "calc") {
             // вызов калькулятора
             string exten = (PulsarCore::platform == "Windows") ? ".exe" : "";
@@ -103,18 +101,27 @@ int CommandHandler::execute(string command) {
 
         }
         else {
-            cout_err(PulsarCore::pulsar_locale["invalid_value"].value_or("ERROR: [LOCALE ERROR] "));
+            CommandUtils cu;
+            CommandFilesystem cf;
+            if (cu.execute(command_split) != 0) {
+                if (cf.execute(command_split) != 0) {
+                    cout_err(PulsarCore::pulsar_locale["invalid_value"].value_or("ERROR: [LOCALE ERROR] "));
+                }
+            }
+
         }
     }
     else {
-        string buffer;
-        for (const string &com : command_split) {
-            buffer += com;
-        }
-        if (buffer.empty()) {
-            return 0;
-        }
-        cout_err(PulsarCore::pulsar_locale["invalid_value"].value_or("ERROR: [LOCALE ERROR] "));
+
+            string buffer;
+            for (const string &com : command_split) {
+                buffer += com;
+            }
+            if (buffer.empty()) {
+                return 0;
+            }
+            cout_err(PulsarCore::pulsar_locale["invalid_value"].value_or("ERROR: [LOCALE ERROR] "));
+
     }
     return 0;
 }
@@ -329,22 +336,28 @@ int CommandAlias::execute(const std::vector<std::string> &command) {
             cout << endl;
         }
         else {
-            cout_err(PulsarCore::pulsar_locale["class_com"].value_or<string>("Locale error") + "script " + PulsarCore::pulsar_locale["not_have_com"].value_or<string>("Locale error") + command[1]);
+            cout_err(PulsarCore::pulsar_locale["class_com"].value_or<string>("Locale error") + "alias " + PulsarCore::pulsar_locale["not_have_com"].value_or<string>("Locale error") + command[1]);
         }
     }
-
-    if (command[1] == "create") {
-        PulsarCore::alias.insert_or_assign(command[2], command[3]);
-        ofstream file(PulsarCore::current_path + "/system/profiles/" + PulsarCurrentProfile::name + "/settings/alias.toml");
-        if (!(file.is_open())) {
-            cerr << PulsarCore::pulsar_locale["file_error"].value_or("ERROR: [LOCALE ERROR]") <<endl;
+    else if (command.size() == 3 && command[1] != "show"  && command[1] != "list") {
+         if (command[1] == "remove") {
+            if (PulsarCore::alias.contains(command[2])) {
+                PulsarCore::alias.erase(command[2]);
+                ofstream file(PulsarCore::current_path + "/system/profiles/" + PulsarCurrentProfile::name + "/settings/alias.toml");
+                if (!(file.is_open())) {
+                    cerr << PulsarCore::pulsar_locale["file_error"].value_or("ERROR: [LOCALE ERROR]") <<endl;
+                }
+                file << PulsarCore::alias;
+                file.close();
+            }
         }
-        file << PulsarCore::alias;
-        file.close();
+         else {
+             cout_err(PulsarCore::pulsar_locale["class_com"].value_or<string>("Locale error") + "alias " + PulsarCore::pulsar_locale["not_have_com"].value_or<string>("Locale error") + command[1]);
+         }
     }
-    else if (command[1] == "remove") {
-        if (PulsarCore::alias.contains(command[2])) {
-            PulsarCore::alias.erase(command[2]);
+    else if (command.size() == 4 && command[1] != "show"  && command[1] != "list" && command[1] != "remove") {
+        if (command[1] == "create") {
+            PulsarCore::alias.insert_or_assign(command[2], command[3]);
             ofstream file(PulsarCore::current_path + "/system/profiles/" + PulsarCurrentProfile::name + "/settings/alias.toml");
             if (!(file.is_open())) {
                 cerr << PulsarCore::pulsar_locale["file_error"].value_or("ERROR: [LOCALE ERROR]") <<endl;
@@ -352,6 +365,11 @@ int CommandAlias::execute(const std::vector<std::string> &command) {
             file << PulsarCore::alias;
             file.close();
         }
+        else {
+            cout_err(PulsarCore::pulsar_locale["class_com"].value_or<string>("Locale error") + "alias " + PulsarCore::pulsar_locale["not_have_com"].value_or<string>("Locale error") + command[1]);
+        }
+    } else {
+        cout_err(PulsarCore::pulsar_locale["invalid_arg"].value_or<string>("ERROR: [LOCALE ERROR] ") + "script ");
     }
 
     return 0;
@@ -397,6 +415,9 @@ int CommandLog::execute(const std::vector<std::string> &command) {
         }
 
     }
+    else {
+        cout_err(PulsarCore::pulsar_locale["class_com"].value_or<string>("Locale error") + "log " + PulsarCore::pulsar_locale["not_have_com"].value_or<string>("Locale error") + ((command.size() >= 1) ? command[1] : ""));
+    }
     return 0;
 }
 int CommandUtils::start_point_time = 0;
@@ -404,20 +425,20 @@ int CommandUtils::end_point_time = 0;
 int CommandUtils::last_total_time = 0;
 
 int CommandUtils::execute(const std::vector<std::string> &command) {
-    if (command.size() >= 3 && command[1] == "timer") {
-        if (command[2] == "start") {
+    if (command.size() >= 2 && command[0] == "timer") {
+        if (command[1] == "start") {
             CommandUtils::start_point_time = clock();
         }
-        else if (command[2] == "stop") {
+        else if (command[1] == "stop") {
             CommandUtils::end_point_time = clock();
             CommandUtils::last_total_time = (CommandUtils::end_point_time - CommandUtils::start_point_time) / 1000;
         }
-        else if (command[2] == "show") {
+        else if (command[1] == "show") {
             cout << CommandUtils::last_total_time << " sec." <<endl;
         }
     }
-    else if (command.size() >= 3 && command[1] == "script_to_cmd") {
-        if (command.size() >= 4 && command[2] == "-a") {
+    else if (command.size() >= 2 && command[0] == "script_to_cmd") {
+        if (command.size() >= 3 && command[1] == "-a") {
             string line;
             string buffer = "cd " + PulsarCore::current_path + " && PulsarVenv -l " + PulsarCurrentProfile::name + " -c ";
             fstream file(command[3], fstream::in | fstream::out | ios::app );
@@ -446,6 +467,9 @@ int CommandUtils::execute(const std::vector<std::string> &command) {
             file.close();
             cout << buffer << endl;
         }
+    }
+    else {
+        return 1;
     }
     return 0;
 }

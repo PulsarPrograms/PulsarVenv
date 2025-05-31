@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.31)
+cmake_minimum_required(VERSION 4.0.2)
 project(PulsarVenv)
 
 set(CMAKE_CXX_STANDARD 26)
@@ -10,6 +10,7 @@ add_executable(PulsarVenv
         src/core/PulsarCore.cpp
         src/commandHandler/CommandHandler.cpp
         src/utils/utils.cpp
+        src/filesystem/PulsarFilesystem.cpp
 
 )
 
@@ -19,6 +20,7 @@ target_include_directories(PulsarVenv PRIVATE
         src/core
         src/include
         src/utils/
+        src/filesystem/
 
 )
 
@@ -27,6 +29,6 @@ target_include_directories(PulsarVenv PRIVATE
 
 
 
-set(CMAKE_CXX_FLAGS "-static -static-libgcc -static-libstdc++ -fexec-charset=UTF-8")
-set(CMAKE_EXE_LINKER_FLAGS "-static")
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fno-weak")
+#set(CMAKE_CXX_FLAGS "-static -static-libgcc -static-libstdc++ -fexec-charset=UTF-8")
+#set(CMAKE_EXE_LINKER_FLAGS "-static")
+#set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fno-weak")

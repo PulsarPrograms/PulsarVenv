@@ -13,6 +13,7 @@ using namespace std;
 string PulsarCurrentProfile::name;
 bool PulsarCurrentProfile::showWarnings = true;
 bool PulsarCurrentProfile::betaFunc = false;
+bool PulsarCurrentProfile::showPath = true;
 
 
 
@@ -35,7 +36,8 @@ toml::table PulsarProfileManager::setup_standart_settings() {
         {"locale" , "standard_locale.toml"},
         {"path", PulsarCore::current_path},
         {"theme", "standard.txt"},
-        {"themeColor", 7}
+        {"themeColor", 7},
+        {"showPath", true}
     };
     return config;
 }
@@ -49,6 +51,7 @@ int PulsarProfileManager::register_profile(string name) {
     PulsarCurrentProfile::name = config["name"].value_or(name);
     PulsarCurrentProfile::showWarnings = config["showWarnings"].value_or(true);
     PulsarCurrentProfile::betaFunc = config["betaFunc"].value_or(false);
+    PulsarCurrentProfile::showPath = config["showPath"].value_or(true);
     std::ofstream file(newProfile + "/settings" + "/config.toml");
     file << config;
     file.close();

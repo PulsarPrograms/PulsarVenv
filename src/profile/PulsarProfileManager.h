@@ -22,6 +22,7 @@ class PulsarCurrentProfile {
     public:
     static std::string name;
     static bool showWarnings;
+    static bool showPath;
     static bool betaFunc;
     static void show_info();
 };

@@ -5,6 +5,7 @@
 #include <../profile/PulsarProfileManager.h>
 #include "../commandHandler/CommandHandler.h"
 #include "../utils/utils.h"
+#include "../filesystem/PulsarFilesystem.h"
 
 using namespace std;
 
@@ -58,6 +59,7 @@ int PulsarCore::account_update(bool is_clear) {
     PulsarCurrentProfile::name = config["name"].value_or(PulsarCurrentProfile::name);
     PulsarCurrentProfile::showWarnings = config["showWarnings"].value_or(PulsarCurrentProfile::showWarnings);
     PulsarCurrentProfile::betaFunc = config["betaFunc"].value_or(false);
+    PulsarCurrentProfile::showPath = config["showPath"].value_or(true);
     if (is_clear) {
         set_theme(config, config["themeColor"].value_or(7));
     }
@@ -80,6 +82,25 @@ int PulsarCore::start() {
     }
     string command;
     while (true) {
+        if (PulsarCurrentProfile::showPath ) {
+            string delimiter = (PulsarCore::platform == "Windows") ? "\\" : "/";
+            string base_path = filesystem::current_path().string() + delimiter + "pulsfs" + delimiter + "pulsarvenv" + delimiter + "home";
+            string cur_path_str = PulsarFilesystem::cur_path.string();
+
+            size_t pos = cur_path_str.find(base_path);
+            if (pos != string::npos) {
+                cur_path_str.replace(pos, base_path.length(), "/home");
+            }
+
+            std::replace(cur_path_str.begin(), cur_path_str.end(), '\\', '/');
+
+            if (cur_path_str.back() != '/') {
+                cur_path_str += '/';
+            }
+
+            string vis = "[ " + cur_path_str + " ] ";
+            cout << vis;
+        }
         cout << "$> "; getline(cin, command);
         // Результат выполнения и обработка
         int result = CommandHandler::execute(command);
