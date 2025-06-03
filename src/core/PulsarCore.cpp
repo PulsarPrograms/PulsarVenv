@@ -84,7 +84,7 @@ int PulsarCore::start() {
     while (true) {
         if (PulsarCurrentProfile::showPath ) {
             string delimiter = (PulsarCore::platform == "Windows") ? "\\" : "/";
-            string base_path = filesystem::current_path().string() + delimiter + "pulsfs" + delimiter + "pulsarvenv" + delimiter + "home";
+            string base_path = filesystem::current_path().string() + delimiter + "system"+ delimiter + "pulsfs" + delimiter + "pulsarvenv" + delimiter + "home";
             string cur_path_str = PulsarFilesystem::cur_path.string();
 
             size_t pos = cur_path_str.find(base_path);
@@ -98,8 +98,8 @@ int PulsarCore::start() {
                 cur_path_str += '/';
             }
 
-            string vis = "[ " + cur_path_str + " ] ";
-            cout << vis;
+            string vis = cur_path_str;
+            cout << "[ "; set_color(9); cout << vis; set_color(7); cout << " ] "; 
         }
         cout << "$> "; getline(cin, command);
         // Результат выполнения и обработка

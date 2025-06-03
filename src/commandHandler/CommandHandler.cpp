@@ -16,7 +16,7 @@ int CommandHandler::execute(string command) {
     string command_without_quotes = remove_quotes(command); // удаление начальных и конечных кавычек
     command_without_quotes = strip(command_without_quotes); // Удаление пробелов в начале и конце
 
-    // Начало разбора алиасов
+    // Начало разбора алиасов 
     for (auto&& [alias_key_node, alias_value] : PulsarCore::alias) {
         std::string alias_key(alias_key_node.data(), alias_key_node.length());
 
@@ -72,7 +72,7 @@ int CommandHandler::execute(string command) {
             command_log.execute(command_split);
         }
 
-        else if (command_split[0] == "calc") {
+        else if (command_split[0] == "calc") { 
             // вызов калькулятора
             string exten = (PulsarCore::platform == "Windows") ? ".exe" : "";
             string calc_arg = (command_split.size() >= 2) ? command_split[1] : "";
@@ -89,8 +89,7 @@ int CommandHandler::execute(string command) {
         }
         else if (command_split[0] == "exit") {
             return 101; //код выхода
-        }
-        else if (command_split[0] == "out") {
+        }        else if (command_split[0] == "out") {
             if (command.size() >= 2) {
                 cout << command_split[1] << endl;
                 cout << "\n";
@@ -120,7 +119,7 @@ int CommandHandler::execute(string command) {
             if (buffer.empty()) {
                 return 0;
             }
-            cout_err(PulsarCore::pulsar_locale["invalid_value"].value_or("ERROR: [LOCALE ERROR] "));
+            cout_err(PulsarCore::pulsar_locale["invalid_value"].value_or<string>("ERROR: [LOCALE ERROR] ") + " " + buffer);
 
     }
     return 0;
@@ -270,28 +269,45 @@ int CommandScript::execute(const vector<string>& command) {
         }
 
     }
-    else if (command.size() == 3 && command[1] != "list") {
+    else if (command.size() == 3 && command[1] != "list" && !(filesystem::path(command[2]).is_absolute())) {
         if (command[1] == "start") {
-            ifstream file(PulsarCore::current_path + "/system/scripts/" + command[2]);
-            if (!(file.is_open())) {
-                cout_err(PulsarCore::pulsar_locale["file_error"].value_or("ERROR: [LOCALE ERROR] "));
-                return 1;
+            filesystem::path target = command[2];
+            if (filesystem::exists(PulsarFilesystem::cur_path / target)){
+                ifstream file(PulsarFilesystem::cur_path / target);
+                if (!(file.is_open())) {
+                    cout_err(PulsarCore::pulsar_locale["file_error"].value_or("ERROR: [LOCALE ERROR] "));
+                    return 1;
+                }
+                string line;
+                while (getline(file,line)) {
+                    CommandHandler::execute(line);
+                }
+                file.close();
             }
-            string line;
-            while (getline(file,line)) {
-                CommandHandler::execute(line);
+            else if (filesystem::exists(PulsarCore::current_path + "/system/scripts/" + command[2])){
+                ifstream file(PulsarCore::current_path + "/system/scripts/" + command[2]);
+                if (!(file.is_open())) {
+                    cout_err(PulsarCore::pulsar_locale["file_error"].value_or("ERROR: [LOCALE ERROR] "));
+                    return 1;
+                }
+                string line;
+                while (getline(file,line)) {
+                    CommandHandler::execute(line);
+                }
+                file.close();
             }
-            file.close();
+            else {
+                cout_err(PulsarCore::pulsar_locale["script_not_ex"].value_or("ERROR: [LOCALE ERROR] "));
+            }
         }
         else {
             cout_err(PulsarCore::pulsar_locale["class_com"].value_or<string>("Locale error") + "script " + PulsarCore::pulsar_locale["not_have_com"].value_or<string>("Locale error") + command[1]);
         }
     }
-    else if (command.size() == 4 && command[1] != "list") {
+    else if (command.size() == 3 && command[1] != "list" && filesystem::path(command[2]).is_absolute()) {
         if (command[1] == "start") {
-            if (command[2] == "-a") {
                 string line;
-                ifstream file(command[3]);
+                ifstream file(command[2]);
                 if (!(file.is_open())) {
                     cout_err(PulsarCore::pulsar_locale["file_error"].value_or("ERROR: [LOCALE ERROR] "));
                     return 1;
@@ -300,11 +316,12 @@ int CommandScript::execute(const vector<string>& command) {
                     CommandHandler::execute(line);
                 }
                 file.close();
-            }
-            else {
-                cout_err(PulsarCore::pulsar_locale["class_com"].value_or<string>("Locale error") + "script " + PulsarCore::pulsar_locale["not_have_com"].value_or<string>("Locale error") + command[1]);
-            }
+            
+            
 
+        }
+        else {
+            cout_err(PulsarCore::pulsar_locale["class_com"].value_or<string>("Locale error") + "script " + PulsarCore::pulsar_locale["not_have_com"].value_or<string>("Locale error") + command[1]);
         }
     }
     else {
