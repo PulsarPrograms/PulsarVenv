@@ -93,7 +93,13 @@ int CommandHandler::execute(string command) {
         }
         else if (command_split[0] == "exit") {
             return 101; //код выхода
-        }        else if (command_split[0] == "out") {
+        } else if (command_split[0] == "whoami"){
+            cout << PulsarCurrentProfile::name << endl;
+        } else if (command_split[0] == "help"){
+            cout << "Здесь будет помощь! Наверное" << endl;
+            // TODO: СДЕЛАТЬ ВЫВОД ДОКУМЕНТАЦИИ ПО ТЕКУЩЕМУ ЯЗЫКУ
+        }
+         else if (command_split[0] == "out") {
             if (command.size() >= 2) {
                 cout << command_split[1] << endl;
                 cout << "\n";
@@ -142,7 +148,7 @@ void CommandSetrule::execute(const vector<string> &command) {
         }
     }
     else if (command.size() == 3 && command[1] != "list") {
-        if (command[1] == "showWarnings" && command.size() == 3) {
+        if (command[1] == "warnings" && command.size() == 3) {
             toml::table conf = toml::parse_file(PulsarCore::current_path + "/system/profiles/" + PulsarCurrentProfile::name + "/settings/config.toml" );
             if (!(command[2] == "true" || command[2] == "false")) {
                 cerr << PulsarCore::pulsar_locale["invalid_value"].value_or("ERROR: [LOCALE ERROR] ") << endl;
@@ -154,7 +160,7 @@ void CommandSetrule::execute(const vector<string> &command) {
             file.close();
             PulsarCore::account_update();
         }
-        else if (command[1] == "setLocale" && command.size() == 3) {
+        else if (command[1] == "locale" && command.size() == 3) {
             toml::table conf = toml::parse_file(PulsarCore::current_path + "/system/profiles/" + PulsarCurrentProfile::name + "/settings/config.toml" );
             conf.insert_or_assign("locale", command[2]);
             ofstream file(PulsarCore::current_path + "/system/profiles/" + PulsarCurrentProfile::name + "/settings/config.toml");
@@ -162,7 +168,7 @@ void CommandSetrule::execute(const vector<string> &command) {
             file.close();
             PulsarCore::account_update();
         }
-        else if (command[1] == "setTheme"&& command.size() == 3) {
+        else if (command[1] == "theme"&& command.size() == 3) {
             toml::table conf = toml::parse_file(PulsarCore::current_path + "/system/profiles/" + PulsarCurrentProfile::name + "/settings/config.toml" );
             conf.insert_or_assign("theme", command[2]);
             ofstream file(PulsarCore::current_path + "/system/profiles/" + PulsarCurrentProfile::name + "/settings/config.toml");
@@ -170,7 +176,7 @@ void CommandSetrule::execute(const vector<string> &command) {
             file.close();
             PulsarCore::account_update(true);
         }
-        else if (command[1] == "betaFunc"&& command.size() == 3) {
+        else if (command[1] == "betafunc"&& command.size() == 3) {
             toml::table conf = toml::parse_file(PulsarCore::current_path + "/system/profiles/" + PulsarCurrentProfile::name + "/settings/config.toml" );
             if (!(command[2] == "true" || command[2] == "false")) {
                 cerr << PulsarCore::pulsar_locale["invalid_value"].value_or("ERROR: [LOCALE ERROR] ") << endl;
@@ -182,7 +188,7 @@ void CommandSetrule::execute(const vector<string> &command) {
             file.close();
             PulsarCore::account_update();
         }
-        else if (command[1] =="themeColor" && command.size() == 3) {
+        else if (command[1] =="tcolor" && command.size() == 3) {
             string color = command[2];
             int icolor = 7;
 
@@ -201,6 +207,15 @@ void CommandSetrule::execute(const vector<string> &command) {
 
             toml::table conf = toml::parse_file(PulsarCore::current_path + "/system/profiles/" + PulsarCurrentProfile::name + "/settings/config.toml" );
             conf.insert_or_assign("themeColor", icolor);
+            ofstream file(PulsarCore::current_path + "/system/profiles/" + PulsarCurrentProfile::name + "/settings/config.toml");
+            file << conf;
+            file.close();
+            PulsarCore::account_update(true);
+        }
+        else if (command[1] =="showpath" && command.size() == 3)
+        {
+            toml::table conf = toml::parse_file(PulsarCore::current_path + "/system/profiles/" + PulsarCurrentProfile::name + "/settings/config.toml" );
+            conf.insert_or_assign("showPath", command[2] == "true");
             ofstream file(PulsarCore::current_path + "/system/profiles/" + PulsarCurrentProfile::name + "/settings/config.toml");
             file << conf;
             file.close();
@@ -250,6 +265,15 @@ void CommandPulsar::execute(const vector<string>& command) {
                 cout << c << ", ";
             }
             cout << endl;
+        }
+        else if (command[1] == "friends"){
+            cout << "Died world" << endl;
+            cout << "oneon4i" << endl;
+            cout << "Kirill Kasparyants" << endl;
+            cout << "nothing" << endl;
+            cout << "Ryodof" << endl;
+            cout << "Nagaev Petr" << endl;
+            cout << "lostdev" << endl;
         }
         else {
             cout_err(PulsarCore::pulsar_locale["class_com"].value_or<string>("Locale error") + "pulsar " + PulsarCore::pulsar_locale["not_have_com"].value_or<string>("Locale error") + command[1]);

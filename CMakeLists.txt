@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 4.0.2)
+cmake_minimum_required(VERSION 3.28.3)
 project(PulsarVenv)
 
 set(CMAKE_CXX_STANDARD 26)

@@ -1,0 +1,58 @@
+help - display this help message
+out "text" - print text to the console
+pulsar info - show information about current profile
+
+setrule warnings [true/false] - enable/disable warnings
+setrule locale [language] - set interface language
+setrule theme [theme] - change color theme
+setrule betafunc [true/false] - enable/disable beta features
+setrule tcolor [color] - change terminal color
+setrule showpath [true/false] - show/hide current path
+
+config show - display current configuration
+
+|BETA| alias show - show all aliases
+|BETA| alias create [alias] [command] - create new alias
+|BETA| alias remove [alias] - remove alias
+
+log write [text] [true/false] - write to log (with/without timestamp)
+log show - display log contents
+log clear - clear log (with confirmation)
+
+calc - Access system calculator
+script start [path] - execute script
+exit - Exit the program
+whoami - Show current profile name
+clear - Clear terminal screen (Updates system according to config)
+
+
+cd .. - move to parent directory
+cd .... - move up two levels
+cd ~LAST~ - return to previous directory
+cd ~ - go to home directory
+cd (no arguments) - go to home directory
+
+
+betcd [directory_name] - smart directory search in subdirectories
+pwd - print working directory
+
+mkdir [path] - create new directory
+mkcd [path] - create directory and enter it
+rmdir [path] - remove directory with all contents
+ls [path] - list directory contents
+ls - list current directory contents
+tree - display directory tree structure
+
+crfile [path] - create new file
+crwfile [path] [text] - create file and write text (supports escape sequences \n, \t)
+more [path] - view file contents
+writef [path] [text] - append text to file (supports escape sequences)
+rm [path] - remove file
+
+fsdown [number]* - enter specified subdirectory *(Default = 1)
+
+
+profile add [name] - create new profile
+profile swap [name] - switch to another profile
+profile list - list all profiles (Current profile highlighted)
+profile setlike [name] - set profile for automatic login at startup
