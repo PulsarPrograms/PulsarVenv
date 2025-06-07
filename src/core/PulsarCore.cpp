@@ -76,7 +76,7 @@ int PulsarCore::profile_start() {
 
 
 int PulsarCore::start() {
-    CommandLog::write_in_log(" %% start pulsar", true, false);
+    CommandLog::write_in_log(" %% start pulsar", true, "SYSTEM & Profile: " + PulsarCurrentProfile::name , false);
     if (profile_start() != 0) {
         return 1;
     }
@@ -105,13 +105,15 @@ int PulsarCore::start() {
         // Результат выполнения и обработка
         int result = CommandHandler::execute(command);
         if (result  != 0 && result != 101 && result != 111) {
+            CommandLog::write_in_log("Critical error", true, "SYSTEM & Profile: " + PulsarCurrentProfile::name , false);
             return 1;
         }
         else if (result == 101) {
-            CommandLog::write_in_log(" %% registry exit pulsar", true, false);
+            CommandLog::write_in_log(" %% registry exit pulsar", true, "SYSTEM & Profile: " + PulsarCurrentProfile::name ,  false);
             return 0;
         }
         else if (result == 111) {
+            CommandLog::write_in_log("Not critical error", true, "SYSTEM & Profile: " + PulsarCurrentProfile::name , false);
             continue;
         }
     }

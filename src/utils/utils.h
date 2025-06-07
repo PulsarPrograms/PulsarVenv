@@ -19,3 +19,5 @@ string strip(const std::string &str);
 void set_color(int color);
 
 void cout_err(const string& msg);
+
+void cout_good(const string& msg);

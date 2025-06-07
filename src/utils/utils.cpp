@@ -120,9 +120,6 @@ void set_color(int color=7) {
         case 7:  std::cout << RESET; break;
         case 8:  std::cout << GREY; break;
         case 5:  std::cout << PURPLE; break;
-        case 13:  std::cout << PINK; break;
-        case 11:  std::cout << NEON_CYAN; break;
-
         default: std::cout << RESET; break;
     }
 #endif
@@ -134,4 +131,9 @@ void cout_err(const string &msg) {
     set_color(7);
 }
 
+void cout_good(const string &msg){
+    set_color(10);
+    cerr << msg << endl;
+    set_color(7);
+}
 

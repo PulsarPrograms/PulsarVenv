@@ -1,6 +1,7 @@
 #pragma once
 #include <string>
 #include <vector>
+#include <../profile/PulsarProfileManager.h>
 
 class CommandHandler {
 
@@ -18,9 +19,6 @@ public:
 
 };
 
-class CommandProfile {
-
-};
 
 class CommandSetrule {
 private:
@@ -72,7 +70,7 @@ private:
 class CommandLog {
 
 public:
-    static int write_in_log(const std::string text, bool is_time, bool is_trunc=false);
+    static int write_in_log(const std::string text, const bool is_time, const std::string  username=PulsarCurrentProfile::name ,const bool is_trunc=false );
     int execute(const std::vector<std::string> &command);
 };
 

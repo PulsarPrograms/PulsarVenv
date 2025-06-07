@@ -13,6 +13,8 @@
 #include "core/PulsarCore.h"
 #include "profile/PulsarProfileManager.h"
 #include "../commandHandler/CommandHandler.h"
+#include "../include/toml++/toml.h"
+
 
 
 
@@ -105,31 +107,42 @@ int main(int argc, char* argv[]) {
 
         }
         else {
-
-            if (manager.account_names.size() == 0) {
-                string name;
-                cout << "Creating a profile operation" << endl;
-                cout << PulsarCore::pulsar_locale["enter_name_profile"].value_or("Enter the profile name: ")<< ": "; getline(cin, name);
-                manager.register_profile(name);
+            toml::table cfg = toml::parse_file(PulsarCore::current_path + "/system/maincfg.toml");
+            if (cfg["speed_login"].value<std::string>().value_or("none") == "none"){
+                if (manager.account_names.size() == 0) {
+                    string name;
+                    cout << "Creating a profile operation" << endl;
+                    cout << PulsarCore::pulsar_locale["enter_name_profile"].value_or("Enter the profile name: ")<< ": "; getline(cin, name);
+                    manager.register_profile(name);;
+                }
+                else {
+                    string name;
+                    cout << PulsarCore::pulsar_locale["enter_name_profile"].value_or("Enter the profile name: ") << ": "; getline(cin, name);
+                    if (manager.login_profile(name) != 0) {
+                        cerr << "Нажмите Enter для выхода...";
+                        cin.get();
+                        return 1;
+                    }
+                }
             }
             else {
-                string name;
-                cout << PulsarCore::pulsar_locale["enter_name_profile"].value_or("Enter the profile name: ") << ": "; getline(cin, name);
-                if (manager.login_profile(name) != 0) {
+                if (manager.login_profile(cfg["speed_login"].value_or("none")) != 0) {
                     cerr << "Нажмите Enter для выхода...";
                     cin.get();
                     return 1;
-                }
+
             }
-            if (core.start() != 0) {
+        }
+        
+        if (core.start() != 0) {
                 cerr << "Нажмите Enter для выхода...";
                 cin.get();
                 return 1;
-            }
-
-        }
-
+        }       
+    
+    }
     return 0;
-
 }
+    
+    
 

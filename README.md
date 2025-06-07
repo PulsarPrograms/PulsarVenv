@@ -9,6 +9,7 @@
 </p>
 
 ## About
+
 PulsarVenv  is a special virtual environment whose functionality is separated from the mother operating system. PulsarVenv is available to run on Linux and Windows operating systems.
 
 ## Documentation
@@ -19,15 +20,21 @@ PulsarVenv  is a special virtual environment whose functionality is separated fr
 
 - [Telegram channel](https://t.me/pulsarvenv)
 - [Telegram community](https://t.me/chatpulsar)
-- [Project branch in the pro programming group](https://t.me/koding_ru/305)
-
+- [Teletype channel](https://teletype.in/@pulsarvenv)
 
 ## Developers
 
 - Author : [zeroqxq](https://github.com/zeroqxq)
-- Site developer & team leader & developer : [oneon](https://github.com/Neexzi)
-- Developer & beta-tester [user (Mutarov) ](https://github.com/Mutarov)
+- Site developer & team leader & Windows beta-tester: [oneon](https://github.com/Neexzi)
+- C/C++ Developer & Linux beta-tester [user (Mutarov)](https://github.com/Mutarov)
+- C/C++ Developer & Linux beta-tester [nоthing •••](https://github.com/ArtyomZeleboba)
+- Python Developer [_Ryodof](https://github.com/Ryodof)
 
 ## License
+
 PulsarVenv is distributed under the MIT license
 
+
+Thank you for choosing PulsarPrograms. 
+Our team is working hard for you. 
+Every user is important to us.

@@ -1,10 +1,3 @@
-/*
-! Пересмотреть работу большинства функций файла
-? Узнать почему иногда текущий путь не является директорией
-TODO 52 строчка
-* Editor 31/05/2025 - @zeroqxq
-* Exit time : 31/05/2025 18:02
-*/
 
 #include "PulsarFilesystem.h"
 
@@ -19,21 +12,35 @@ using namespace std;
 namespace fs = std::filesystem;
 
 fs::path PulsarFilesystem::cur_path = fs::current_path() / "system" / "pulsfs" / "pulsarvenv" / "home";
+fs::path PulsarFilesystem::home_path = fs::current_path() / "system" / "pulsfs" / "pulsarvenv" / "home";
+fs::path PulsarFilesystem::last_path = fs::current_path() / "system" / "pulsfs" / "pulsarvenv" / "home";
+
 
 void PulsarFilesystem::handle_cd(const std::string path) {
     if (path == "..") {
+        PulsarFilesystem::last_path = PulsarFilesystem::cur_path;
         PulsarFilesystem::cur_path = cur_path.parent_path();
     }
     else if (path == "....") {
+        PulsarFilesystem::last_path = PulsarFilesystem::cur_path;
         PulsarFilesystem::cur_path = cur_path.parent_path().parent_path();
+    }
+    else if (path == "~LAST~"){
+        PulsarFilesystem::cur_path = PulsarFilesystem::last_path;
+    }
+    else if (path == "~"){
+        PulsarFilesystem::last_path = PulsarFilesystem::cur_path;
+        PulsarFilesystem::cur_path = PulsarFilesystem::home_path;
     }
     else {
         fs::path target = cur_path / path;
     
         if (fs::exists(target) && fs::is_directory(target)) {
+            PulsarFilesystem::last_path = PulsarFilesystem::cur_path;
             PulsarFilesystem::cur_path = target;
         }
         else if (fs::exists(path) && fs::is_directory(path)) {
+            PulsarFilesystem::last_path = PulsarFilesystem::cur_path;
             PulsarFilesystem::cur_path = path;
         }
         else {
@@ -76,6 +83,7 @@ void PulsarFilesystem::handle_mkсd(const std::string path){
     }
     else {
         fs::create_directories(target);
+        PulsarFilesystem::last_path = PulsarFilesystem::cur_path;
         PulsarFilesystem::cur_path = target;
     }
 }
@@ -119,7 +127,7 @@ void PulsarFilesystem::handle_ls(const std::filesystem::path path) {
     if (fs::exists(target) && fs::is_directory(target)) {
         for (const auto &entry : fs::directory_iterator(target)) {
             if (entry.is_directory()){
-            set_color(9); cout << " | " << entry.path().filename().string() << "\n"; set_color(7);
+            set_color(11); cout << " | " << entry.path().filename().string() << "\n"; set_color(7);
             }
             else {
                 cout << " | " << entry.path().filename().string() << "\n";
@@ -257,10 +265,118 @@ void PulsarFilesystem::handle_crwfile(const fs::path path, const string text){
     file.close();
 }
 
+void PulsarFilesystem::handle_rm(fs::path path){
+    fs::path target = path.is_absolute() ? path : (cur_path / path);
+
+    if (!(fs::exists(target))) {
+        cout_err(PulsarCore::pulsar_locale["file_not_ex"].value_or<string>("Locale error") + path.string());
+        return;
+    }
+
+    if (fs::remove(target)){
+        cout_good(PulsarCore::pulsar_locale["file_del_true"].value_or<string>("Locale error") + path.string());
+    }
+    else {
+        cout_good(PulsarCore::pulsar_locale["file_del_false"].value_or<string>("Locale error") + path.string());
+    }
+}
+
+void PulsarFilesystem::handle_cd(){
+    if (fs::exists(PulsarFilesystem::home_path) && fs::is_directory(PulsarFilesystem::home_path)) {
+        PulsarFilesystem::cur_path = PulsarFilesystem::home_path;
+    }
+}
+
+void PulsarFilesystem::handle_tree() {
+    for (const auto &entry : fs::directory_iterator(PulsarFilesystem::cur_path)) {
+        if (entry.is_directory()){
+            set_color(11); cout << " | " << entry.path().filename().string() << "\n"; set_color(7);
+        fs::path p = entry;
+        PulsarFilesystem::handle_sys_tree(p);
+        }
+        else { 
+            cout << " | " << entry.path().filename().string() << "\n";
+            
+        }     
+    }
+    return;
+}
+
+
+void PulsarFilesystem::handle_sys_tree(fs::path path) {
+    for (const auto &entry : fs::directory_iterator(path)) {
+        if (entry.is_directory()){
+            set_color(11); cout << "   <|  " << entry.path().filename().string() << "\n"; set_color(7);
+        fs::path p = entry;
+        PulsarFilesystem::handle_sys_tree(p);
+        }
+        else { 
+            cout << " | " << entry.path().filename().string() << "\n";
+            
+        }     
+    }
+    return;
+}
+
+
+void PulsarFilesystem::handle_fsdown(int pos){
+    int cur_pos = 1;
+    for (const auto &entry : fs::directory_iterator(PulsarFilesystem::cur_path)) {
+        if (entry.is_directory()){
+            if (cur_pos == pos){
+            PulsarFilesystem::cur_path = entry;
+            break;
+            }
+            cur_pos++;
+        }
+        
+    }
+}
+
+void PulsarFilesystem::handle_betcd(const string& fdir) {
+    try {
+        if (find_and_change_dir(cur_path, fdir)) {
+            return; 
+        }
+    } 
+    catch (const fs::filesystem_error& e) {
+        cout_err("Filesystem error: " + string(e.what()));
+    }
+}
+
+bool PulsarFilesystem::find_and_change_dir(const fs::path& search_path, const string& target_dir) {
+    try {
+        for (const auto& entry : fs::directory_iterator(search_path)) {
+            if (entry.is_directory()) {
+                if (entry.path().filename() == target_dir) {
+                    last_path = cur_path;
+                    cur_path = entry.path();
+                    return true;
+                }
+                
+                if (find_and_change_dir(entry.path(), target_dir)) {
+                    return true;
+                }
+            }
+        }
+    }
+    catch (const fs::filesystem_error& e) {
+        return false;
+    }
+    
+    return false;
+}
+
 
 int CommandFilesystem::execute(std::vector<std::string> &command) {
     if (command.size() == 2 && command[0] == "cd") {
         PulsarFilesystem::handle_cd(command[1]);
+    }
+    else if (command.size() == 1 && command[0] == "cd"){
+        PulsarFilesystem::handle_cd();
+    }
+    else if (command.size() == 2 && command[0] == "betcd"){
+        PulsarFilesystem::handle_betcd(command[1]);
     }
     else if (command.size() == 1 && command[0] == "pwd") {
         cout << PulsarFilesystem::cur_path.string() << endl;
@@ -294,6 +410,26 @@ int CommandFilesystem::execute(std::vector<std::string> &command) {
     else if (command.size() == 3 && command[0] == "crwfile") {
         fs::path path = command[1];
         PulsarFilesystem::handle_crwfile(path, command[2]);
+    }
+    else if (command.size() == 2 && command[0] == "rm") {
+        fs::path path = command[1];
+        PulsarFilesystem::handle_rm(path);
+    }
+    else if (command.size() == 1 && command[0] == "fsdown"){
+        PulsarFilesystem::handle_fsdown();
+    }
+    else if (command.size() == 2 && command[0] == "fsdown"){
+        int posit;
+        try {
+        posit = stoi(command[1]);
+        } catch (...){
+            cout_err(PulsarCore::pulsar_locale["invalid_stoi"].value_or("Locale error"));
+            return 1;
+        }
+        PulsarFilesystem::handle_fsdown(posit);
+    }
+    else if (command.size() == 1 && command[0] == "tree"){
+        PulsarFilesystem::handle_tree();
     }
     else {
         return 1;

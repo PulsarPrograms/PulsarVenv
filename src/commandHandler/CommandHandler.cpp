@@ -12,7 +12,7 @@
 using namespace std;
 
 int CommandHandler::execute(string command) {
-    CommandLog::write_in_log(command, false,false); // Запись в лог
+    CommandLog::write_in_log(command, true,  PulsarCurrentProfile::name, false); // Запись в лог
     string command_without_quotes = remove_quotes(command); // удаление начальных и конечных кавычек
     command_without_quotes = strip(command_without_quotes); // Удаление пробелов в начале и конце
 
@@ -70,6 +70,10 @@ int CommandHandler::execute(string command) {
         else if (command_split[0] == "log") {
             CommandLog command_log;
             command_log.execute(command_split);
+        }
+        else if (command_split[0] == "profile") {
+            CommandProfile cp;
+            cp.execute(command_split);
         }
 
         else if (command_split[0] == "calc") { 
@@ -392,10 +396,15 @@ int CommandAlias::execute(const std::vector<std::string> &command) {
     return 0;
 }
 
-int CommandLog::write_in_log(const std::string text, bool is_time, bool is_trunc) {
+int CommandLog::write_in_log(const std::string text, const bool is_time, const string username, const bool is_trunc) {
     auto mode = (is_trunc) ? ios::trunc : ios::app;
-    fstream log(PulsarCore::current_path + "/system/profiles/" + PulsarCurrentProfile::name + "/settings/log.pulslog", fstream::in | fstream::out |mode );
-    log << text << ((is_time)? " " + get_current_date_time() : "");
+    fstream log(PulsarCore::current_path + "/system/log.pulslog", fstream::in | fstream::out | mode );
+    if (!log.is_open()){
+        cout_err(PulsarCore::pulsar_locale["file_error"].value_or<string>("Locale error"));
+        return 1;
+    }
+    log << "[ " << username << " @ " << ((is_time)? " " + get_current_date_time() : "") << " ] >>> ";
+    log << text;
     log << "\n";
     log.close();
     return 0;
@@ -404,7 +413,7 @@ int CommandLog::write_in_log(const std::string text, bool is_time, bool is_trunc
 
 int CommandLog::execute(const std::vector<std::string> &command) {
     if (command.size()>=4 && command[1] == "write") {
-        CommandLog::write_in_log(command[2], command[3] == "true");
+        CommandLog::write_in_log(command[2], command[3] == "true", PulsarCurrentProfile::name + " [ user write log]");
     }
     else if (command.size()>=2 && command[1] == "show") {
         string line;
@@ -421,14 +430,14 @@ int CommandLog::execute(const std::vector<std::string> &command) {
             cout << PulsarCore::pulsar_locale["danger_step"].value_or("ERROR: [LOCALE ERROR]") << " 1" << endl;
             cout << PulsarCore::pulsar_locale["op_verify"].value_or("ERROR: [LOCALE ERROR]") << " ";  getline(cin, verify);
             if (verify == "Y" || verify == "y") {
-                CommandLog::write_in_log(" %% pulsar log clear", true, true);
+                CommandLog::write_in_log(" %% pulsar log clear", true,  PulsarCurrentProfile::name, true);
             }
             else {
                 cout << PulsarCore::pulsar_locale["op_stop"].value_or("ERROR: [LOCALE ERROR]") << " " << PulsarCore::pulsar_locale["user_not_agree"].value_or("ERROR: [LOCALE ERROR]") << endl;
             }
         }
         else {
-            CommandLog::write_in_log(" %% pulsar log clear", true, true);
+            CommandLog::write_in_log(" %% pulsar log clear", true, PulsarCurrentProfile::name, true);
         }
 
     }

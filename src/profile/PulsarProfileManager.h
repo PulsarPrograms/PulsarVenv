@@ -26,3 +26,8 @@ class PulsarCurrentProfile {
     static bool betaFunc;
     static void show_info();
 };
+
+class CommandProfile {
+    public: 
+    int execute(std::vector<std::string> &command);
+};
