@@ -35,6 +35,4 @@ PulsarVenv  is a special virtual environment whose functionality is separated fr
 PulsarVenv is distributed under the MIT license
 
 
-Thank you for choosing PulsarPrograms. 
-Our team is working hard for you. 
-Every user is important to us.
+# Thank you for choosing PulsarPrograms. Our team is working hard for you. Every user is important to us. ♥♥♥♥♥
